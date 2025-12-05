@@ -1,7 +1,7 @@
 package io.jrb.labs.rtl433dp.events
 
 import io.jrb.labs.commons.eventbus.Event
-import io.jrb.labs.rtl433dp.models.Rtl433Data
+import io.jrb.labs.rtl433dp.types.Rtl433Data
 
 sealed class PipelineEvent : Event {
 

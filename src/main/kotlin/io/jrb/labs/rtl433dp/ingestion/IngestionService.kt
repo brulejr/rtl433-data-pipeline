@@ -31,7 +31,7 @@ import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.events.RawMessageSource
 import io.jrb.labs.rtl433dp.ingestion.data.Source
-import io.jrb.labs.rtl433dp.models.Rtl433Data
+import io.jrb.labs.rtl433dp.types.Rtl433Data
 import org.slf4j.LoggerFactory
 import reactor.core.Disposable
 

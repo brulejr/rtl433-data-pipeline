@@ -21,15 +21,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433dp.models
+package io.jrb.labs.rtl433dp.types
 
+import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
 import java.time.Instant
 
-interface Device {
-    val id: String
-    val model: String
-    val time: Instant
-    val name: String?
-    val type: String?
-    val area: String?
+@JsonPOJOBuilder(withPrefix = "")
+class Rtl433DataBuilder {
+
+    private var model: String? = null
+    private var id: String? = null
+    private var time: Instant = Instant.now()
+    private var name: String? = null
+    private var type: String? = null
+    private var area: String? = null
+    private val properties: MutableMap<String, Any?> = mutableMapOf()
+
+    fun model(model: String) = apply { this.model = model }
+    fun id(id: String) = apply { this.id = id }
+    fun time(time: Instant) = apply { this.time = time }
+    fun name(name: String?) = apply { this.name = name }
+    fun type(type: String?) = apply { this.type = type }
+    fun area(area: String?) = apply { this.area = area }
+
+    @JsonAnySetter
+    fun setProperty(key: String, value: Any?) = apply {
+        properties[key] = value
+    }
+
+    fun build(): Rtl433Data {
+        return Rtl433Data(
+            model = requireNotNull(model),
+            id = requireNotNull(id),
+            time = time,
+            properties = properties.toMap()
+        )
+    }
+
 }
