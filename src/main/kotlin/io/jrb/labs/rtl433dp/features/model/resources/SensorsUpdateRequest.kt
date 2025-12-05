@@ -22,9 +22,27 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.types
+package io.jrb.labs.rtl433dp.features.model.resources
 
-enum class SensorType {
-    ANALOG,
-    BINARY
-}
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class SensorsUpdateRequest @JsonCreator constructor(
+
+    @field:NotBlank(message="Model may not be blank")
+    @field:JsonProperty("model")
+    val model: String,
+
+    @field:NotBlank(message="Category may not be blank")
+    @field:JsonProperty("category")
+    val category: String,
+
+    @field:NotEmpty(message="Must have at least one sensor")
+    @field:JsonProperty("sensors", required = false)
+    val sensors: List<SensorMappingRequest>?
+
+)

@@ -22,9 +22,34 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.types
+package io.jrb.labs.rtl433dp.features.model
 
-enum class SensorType {
-    ANALOG,
-    BINARY
+import io.jrb.labs.commons.eventbus.EventBus
+import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.service.ControllableService
+import io.jrb.labs.rtl433dp.events.PipelineEvent
+import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import org.slf4j.LoggerFactory
+
+class ModelPipelineEventConsumer(
+    private val modelService: ModelService,
+    private val eventBus: PipelineEventBus,
+    systemEventBus: SystemEventBus
+) : ControllableService(systemEventBus) {
+
+    private val log = LoggerFactory.getLogger(ModelPipelineEventConsumer::class.java)
+
+    private var subscription: EventBus.Subscription? = null
+
+    override fun onStart() {
+        subscription = eventBus.subscribe<PipelineEvent.Rtl433DataReceived> { event ->
+            modelService.processEvent(event)
+        }
+    }
+
+    override fun onStop() {
+        subscription?.cancel()
+        subscription = null
+    }
+
 }

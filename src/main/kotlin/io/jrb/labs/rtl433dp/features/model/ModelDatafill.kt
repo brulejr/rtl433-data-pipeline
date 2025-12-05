@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package io.jrb.labs.rtl433dp.features.model
 
-package io.jrb.labs.rtl433dp.types
+import org.springframework.boot.context.properties.ConfigurationProperties
 
-enum class SensorType {
-    ANALOG,
-    BINARY
-}
+@ConfigurationProperties(prefix = "application.model")
+data class ModelDatafill(
+    val enabled: Boolean = true
+)

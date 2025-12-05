@@ -22,9 +22,12 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.types
+package io.jrb.labs.rtl433dp.features.model.repository
 
-enum class SensorType {
-    ANALOG,
-    BINARY
+import io.jrb.labs.rtl433dp.features.model.entities.ModelEntity
+import io.jrb.labs.rtl433dp.features.model.resources.Rtl433Search
+import reactor.core.publisher.Flux
+
+interface ModelRepositoryCustom {
+    fun search(search: Rtl433Search): Flux<ModelEntity>
 }

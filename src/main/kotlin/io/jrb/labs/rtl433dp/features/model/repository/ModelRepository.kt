@@ -22,9 +22,18 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.types
+package io.jrb.labs.rtl433dp.features.model.repository
 
-enum class SensorType {
-    ANALOG,
-    BINARY
+import io.jrb.labs.commons.repository.EntityRepository
+import io.jrb.labs.rtl433dp.features.model.entities.ModelEntity
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Repository
+import reactor.core.publisher.Mono
+
+@Repository
+@ConditionalOnProperty(prefix = "application.model", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+interface ModelRepository : EntityRepository<ModelEntity>, ModelRepositoryCustom {
+
+    fun findByModelAndFingerprint(model: String, fingerprint: String): Mono<ModelEntity>
+
 }

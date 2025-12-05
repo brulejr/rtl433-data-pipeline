@@ -21,10 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package io.jrb.labs.rtl433dp.features.model.entities
 
-package io.jrb.labs.rtl433dp.types
+import io.jrb.labs.rtl433dp.features.model.resources.SensorMappingResource
+import io.jrb.labs.rtl433dp.types.SensorType
+import org.bson.codecs.pojo.annotations.BsonCreator
+import org.bson.codecs.pojo.annotations.BsonProperty
 
-enum class SensorType {
-    ANALOG,
-    BINARY
+data class SensorMapping @BsonCreator constructor(
+    @BsonProperty("name") val name: String,
+    @BsonProperty("type") val type: SensorType,
+    @BsonProperty("classname") val classname: String,
+    @BsonProperty("friendlyName") val friendlyName: String? = null
+) {
+
+    fun toSensorMappingResource(): SensorMappingResource {
+        return SensorMappingResource(
+            name = name,
+            type = type,
+            classname = classname,
+            friendlyName = friendlyName
+        )
+    }
+
 }

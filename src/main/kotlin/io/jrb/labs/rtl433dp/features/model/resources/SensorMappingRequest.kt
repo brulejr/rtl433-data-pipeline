@@ -22,27 +22,42 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.types
+package io.jrb.labs.rtl433dp.features.model.resources
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import java.time.Instant
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.jrb.labs.rtl433dp.features.model.entities.SensorMapping
+import io.jrb.labs.rtl433dp.types.SensorType
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
-@JsonDeserialize(builder = Rtl433DataBuilder::class)
-data class Rtl433Data(
-    override val model: String,
-    override val id: String,
-    override val time: Instant,
-    override val name: String? = null,
-    override val type: String? = null,
-    override val area: String? = null,
-    private val properties: Map<String, Any?> = emptyMap(),
-) : Device {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class SensorMappingRequest @JsonCreator constructor(
 
-    @JsonAnyGetter
-    fun getProperties(): Map<String, Any?> = properties
+    @field:NotBlank(message="Sensor name may not be blank")
+    @field:JsonProperty("name")
+    val name: String,
 
-    operator fun contains(key: String): Boolean = properties.containsKey(key)
-    operator fun get(key: String): Any? = properties[key]
+    @field:NotNull(message="Sensor type is required")
+    @field:JsonProperty("type")
+    val type: SensorType,
+
+    @field:NotBlank(message="Sensor class may not be blank")
+    @field:JsonProperty("class")
+    val classname: String,
+
+    @field:JsonProperty("friendlyName")
+    val friendlyName: String? = null
+) {
+
+    fun toSensorMapping(): SensorMapping {
+        return SensorMapping(
+            name = name,
+            type = type,
+            classname = classname,
+            friendlyName = friendlyName
+        )
+    }
 
 }

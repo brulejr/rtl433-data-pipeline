@@ -1,8 +1,0 @@
-application.ingestion:
-  enabled: true
-  mqtt:
-    - name: RTL433
-      host: 10.10.30.23
-      port: 1883
-      clientId: rtl433-client-${random.uuid}
-      topic: rtl_433/c568f8b433e2/events

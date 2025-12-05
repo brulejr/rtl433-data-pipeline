@@ -22,9 +22,17 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.types
+package io.jrb.labs.commons.repository
 
-enum class SensorType {
-    ANALOG,
-    BINARY
+import io.jrb.labs.commons.model.Entity
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+
+interface EntityRepository<E: Entity<E>> : ReactiveMongoRepository<E, String> {
+
+    fun findByGuidAndOwnerGuid(guid: String, ownerGuid: String?): Mono<E>
+
+    fun findAllByOwnerGuid(ownerGuid: String?): Flux<E>
+
 }

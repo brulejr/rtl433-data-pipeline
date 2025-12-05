@@ -22,9 +22,44 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.types
+package io.jrb.labs.rtl433dp.features.model.resources
 
-enum class SensorType {
-    ANALOG,
-    BINARY
-}
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonView
+import com.fasterxml.jackson.databind.JsonNode
+import io.jrb.labs.commons.client.ResourceViews
+import java.time.Instant
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class ModelResource(
+
+    @field:JsonView(ResourceViews.List::class)
+    val source: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val model: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val fingerprint: String,
+
+
+
+    @field:JsonView(ResourceViews.List::class)
+    val category: String?,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val jsonStructure: JsonNode,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val sensors: List<SensorMappingResource>? = null,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val createdOn: Instant? = null,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val modifiedOn: Instant? = null,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val version: Long? = null
+
+)

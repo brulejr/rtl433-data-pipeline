@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.types
+package io.jrb.labs.commons.util
 
-enum class SensorType {
-    ANALOG,
-    BINARY
-}
+import kotlinx.coroutines.sync.Mutex
+import java.util.concurrent.atomic.AtomicInteger
+
+data class RefLock(val mutex: Mutex = Mutex(), val refCount: AtomicInteger = AtomicInteger(0))
