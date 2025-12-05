@@ -21,12 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433dp.ingestion
+package io.jrb.labs.rtl433dp.features.ingestion
 
-import io.jrb.labs.rtl433dp.ingestion.data.mqtt.MqttSourceDatafill
+import io.jrb.labs.rtl433dp.features.ingestion.data.mqtt.MqttSourceDatafill
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "application.ingester")
-data class IngesterDatafill(
+@ConfigurationProperties(prefix = "application.ingestion")
+data class IngestionDatafill(
     val mqtt: List<MqttSourceDatafill>
 )

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.ingestion
+package io.jrb.labs.rtl433dp.features.ingestion
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
@@ -30,7 +30,7 @@ import io.jrb.labs.commons.service.ControllableService
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.events.RawMessageSource
-import io.jrb.labs.rtl433dp.ingestion.data.Source
+import io.jrb.labs.rtl433dp.features.ingestion.data.Source
 import io.jrb.labs.rtl433dp.types.Rtl433Data
 import org.slf4j.LoggerFactory
 import reactor.core.Disposable

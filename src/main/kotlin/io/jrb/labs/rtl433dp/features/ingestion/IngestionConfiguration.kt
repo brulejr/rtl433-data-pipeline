@@ -22,19 +22,19 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.ingestion
+package io.jrb.labs.rtl433dp.features.ingestion
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.ingestion.data.Source
-import io.jrb.labs.rtl433dp.ingestion.data.mqtt.HiveMqttSource
+import io.jrb.labs.rtl433dp.features.ingestion.data.Source
+import io.jrb.labs.rtl433dp.features.ingestion.data.mqtt.HiveMqttSource
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 
 @Configuration
-@Profile("ingestion")
+@ConditionalOnProperty(prefix = "application.ingestion", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class IngestionConfiguration {
 
     @Bean
@@ -48,7 +48,7 @@ class IngestionConfiguration {
     }
 
     @Bean
-    fun sources(datafill: IngesterDatafill): List<Source> {
+    fun sources(datafill: IngestionDatafill): List<Source> {
         return datafill.mqtt.map { source -> HiveMqttSource(source) }
     }
 

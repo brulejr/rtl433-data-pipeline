@@ -1,8 +1,6 @@
 spring.application.name: rtl433-data-pipeline
 spring.profiles.active: ${PROFILE:local}
 
-spring.profiles.include: ingestion
-
 server.port: ${SERVER_PORT:5001}
 
 info:

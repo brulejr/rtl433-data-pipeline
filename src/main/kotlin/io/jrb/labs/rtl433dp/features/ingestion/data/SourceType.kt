@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433dp.ingestion.data
+package io.jrb.labs.rtl433dp.features.ingestion.data
 
 enum class SourceType {
     MQTT
