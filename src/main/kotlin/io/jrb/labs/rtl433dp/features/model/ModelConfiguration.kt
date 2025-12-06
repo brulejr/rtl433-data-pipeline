@@ -66,13 +66,12 @@ class ModelConfiguration(
     fun initIndexes() {
         val indexOps: ReactiveIndexOperations = mongoTemplate.indexOps(ModelEntity::class.java)
 
-        val modelFingerprintIndex = Index()
+        val indexes = Index()
             .on("model", Sort.Direction.ASC)
-            .on("fingerprint", Sort.Direction.ASC)
             .unique()
 
         // trigger the reactive index creation (must subscribe)
-        indexOps.createIndex(modelFingerprintIndex)
+        indexOps.createIndex(indexes)
             .subscribe { idx -> println("✅ Ensured index created: $idx") }
     }
 
