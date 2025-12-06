@@ -10,4 +10,9 @@ sealed class PipelineEvent : Event {
         val data: Rtl433Data
     ) : PipelineEvent()
 
+    data class Rtl433DataFingerprinted(
+        val source: RawMessageSource,
+        val data: Rtl433Data
+    ) : PipelineEvent()
+
 }

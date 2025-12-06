@@ -28,7 +28,6 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.features.recommendation.entity.FingerprintCount
 import io.jrb.labs.rtl433dp.features.recommendation.entity.Recommendation
-import io.jrb.labs.rtl433dp.features.recommendation.messaging.RecommendationPipelineEventConsumer
 import io.jrb.labs.rtl433dp.features.recommendation.repository.KnownDeviceRepository
 import io.jrb.labs.rtl433dp.features.recommendation.repository.RecommendationRepository
 import io.jrb.labs.rtl433dp.features.recommendation.service.FingerprintService
@@ -55,8 +54,8 @@ class RecommendationConfiguration(
         recommendationService: RecommendationService,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) : RecommendationPipelineEventConsumer {
-        return RecommendationPipelineEventConsumer(fingerprintService, recommendationService, eventBus, systemEventBus)
+    ) : RecommendationEventConsumer {
+        return RecommendationEventConsumer(fingerprintService, recommendationService, eventBus, systemEventBus)
     }
 
     @Bean

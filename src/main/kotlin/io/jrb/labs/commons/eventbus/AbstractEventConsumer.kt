@@ -22,44 +22,27 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.recommendation.messaging
+package io.jrb.labs.commons.eventbus
 
-import io.jrb.labs.commons.eventbus.EventBus
-import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.service.ControllableService
-import io.jrb.labs.rtl433dp.events.PipelineEvent
-import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.recommendation.service.FingerprintService
-import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
 import org.slf4j.LoggerFactory
+import kotlin.reflect.KClass
 
-class RecommendationPipelineEventConsumer(
-    private val fingerprintService: FingerprintService,
-    private val recommendationService: RecommendationService,
-    private val eventBus: PipelineEventBus,
+abstract class AbstractEventConsumer<G : Event, E : G> protected constructor (
+    private val kClass: KClass<E>,
+    private val eventBus: EventBus<G>,
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
 
-    private val log = LoggerFactory.getLogger(RecommendationPipelineEventConsumer::class.java)
+    protected val log = LoggerFactory.getLogger(javaClass)
 
     private var subscription: EventBus.Subscription? = null
 
+    protected abstract suspend fun handleEvent(event: E)
+
     override fun onStart() {
-        subscription = eventBus.subscribe<PipelineEvent.Rtl433DataReceived> { event ->
-            log.debug("event - {}", event)
-            val payload = event.data
-            val deviceId = payload.id
-            val propertiesSample = payload.getProperties()
-
-            val (fingerprint, bucketCount) = fingerprintService.registerObservation(payload)
-
-            recommendationService.maybeCreateRecommendation(
-                fingerprint = fingerprint,
-                model = payload.model,
-                deviceId = deviceId,
-                bucketCount = bucketCount,
-                propertiesSample = propertiesSample
-            )
+        subscription = eventBus.subscribe(kClass.java) { event ->
+            handleEvent(event)
         }
     }
 

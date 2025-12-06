@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
-import io.jrb.labs.rtl433dp.features.model.messaging.ModelPipelineEventConsumer
 import io.jrb.labs.rtl433dp.features.model.repository.ModelRepository
 import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import jakarta.annotation.PostConstruct
@@ -51,8 +50,8 @@ class ModelConfiguration(
         modelService: ModelService,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) : ModelPipelineEventConsumer {
-        return ModelPipelineEventConsumer(modelService, eventBus, systemEventBus)
+    ) : ModelEventConsumer {
+        return ModelEventConsumer(modelService, eventBus, systemEventBus)
     }
 
     @Bean
