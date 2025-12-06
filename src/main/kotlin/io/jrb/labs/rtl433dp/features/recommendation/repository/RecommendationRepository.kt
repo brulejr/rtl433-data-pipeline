@@ -22,44 +22,17 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.resources
+package io.jrb.labs.rtl433dp.features.recommendation.repository
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonView
-import com.fasterxml.jackson.databind.JsonNode
-import io.jrb.labs.commons.client.ResourceViews
-import java.time.Instant
+import io.jrb.labs.rtl433dp.features.recommendation.entity.Recommendation
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class ModelResource(
+interface RecommendationRepository : ReactiveMongoRepository<Recommendation, String> {
 
-    @field:JsonView(ResourceViews.List::class)
-    val source: String,
+    fun findAllByPromotedIsFalse(): Flux<Recommendation>
 
-    @field:JsonView(ResourceViews.List::class)
-    val model: String,
+    fun findByFingerprint(fingerprint: String): Mono<Recommendation>
 
-    @field:JsonView(ResourceViews.List::class)
-    val fingerprint: String,
-
-
-
-    @field:JsonView(ResourceViews.List::class)
-    val category: String?,
-
-    @field:JsonView(ResourceViews.Details::class)
-    val jsonStructure: JsonNode,
-
-    @field:JsonView(ResourceViews.Details::class)
-    val sensors: List<SensorMappingResource>? = null,
-
-    @field:JsonView(ResourceViews.Details::class)
-    val createdOn: Instant? = null,
-
-    @field:JsonView(ResourceViews.Details::class)
-    val modifiedOn: Instant? = null,
-
-    @field:JsonView(ResourceViews.Details::class)
-    val version: Long? = null
-
-)
+}

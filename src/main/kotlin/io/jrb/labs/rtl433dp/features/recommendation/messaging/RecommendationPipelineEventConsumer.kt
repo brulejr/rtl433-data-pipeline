@@ -22,28 +22,44 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model
+package io.jrb.labs.rtl433dp.features.recommendation.messaging
 
 import io.jrb.labs.commons.eventbus.EventBus
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.service.ControllableService
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.recommendation.service.FingerprintService
+import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
 import org.slf4j.LoggerFactory
 
-class ModelPipelineEventConsumer(
-    private val modelService: ModelService,
+class RecommendationPipelineEventConsumer(
+    private val fingerprintService: FingerprintService,
+    private val recommendationService: RecommendationService,
     private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
 
-    private val log = LoggerFactory.getLogger(ModelPipelineEventConsumer::class.java)
+    private val log = LoggerFactory.getLogger(RecommendationPipelineEventConsumer::class.java)
 
     private var subscription: EventBus.Subscription? = null
 
     override fun onStart() {
         subscription = eventBus.subscribe<PipelineEvent.Rtl433DataReceived> { event ->
-            modelService.processEvent(event)
+            log.debug("event - {}", event)
+            val payload = event.data
+            val deviceId = payload.id
+            val propertiesSample = payload.getProperties()
+
+            val (fingerprint, bucketCount) = fingerprintService.registerObservation(payload)
+
+            recommendationService.maybeCreateRecommendation(
+                fingerprint = fingerprint,
+                model = payload.model,
+                deviceId = deviceId,
+                bucketCount = bucketCount,
+                propertiesSample = propertiesSample
+            )
         }
     }
 

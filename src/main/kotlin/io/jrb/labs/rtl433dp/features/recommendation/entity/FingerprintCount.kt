@@ -22,12 +22,20 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.repository
+package io.jrb.labs.rtl433dp.features.recommendation.entity
 
-import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
-import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
-import reactor.core.publisher.Flux
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
 
-interface ModelRepositoryCustom {
-    fun search(search: Rtl433Search): Flux<ModelEntity>
-}
+@Document("fingerprint-counts")
+data class FingerprintCount(
+
+    @Id val id: String? = null,   // composed key: "<fingerprint>#<bucketStartEpoch>"
+
+    val fingerprint: String,
+
+    val bucketStartEpoch: Long,    // epoch minutes or epoch seconds - consistent use required
+
+    val count: Long = 0
+
+)

@@ -22,12 +22,25 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.repository
+package io.jrb.labs.rtl433dp.features.recommendation.resource
 
-import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
-import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
-import reactor.core.publisher.Flux
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonView
+import io.jrb.labs.commons.client.ResourceViews
 
-interface ModelRepositoryCustom {
-    fun search(search: Rtl433Search): Flux<ModelEntity>
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class RecommendationResource(
+
+    @field:JsonView(ResourceViews.List::class)
+    val model: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val id: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val fingerprint: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val bucketCount: Long
+
+)

@@ -22,27 +22,44 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.resources
+package io.jrb.labs.rtl433dp.features.recommendation.resource
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
+import com.fasterxml.jackson.annotation.JsonView
+import io.jrb.labs.commons.client.ResourceViews
+import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class SensorsUpdateRequest @JsonCreator constructor(
+data class KnownDeviceResource(
 
-    @field:NotBlank(message="Model may not be blank")
-    @field:JsonProperty("model")
+    @field:JsonView(ResourceViews.List::class)
     val model: String,
 
-    @field:NotBlank(message="Category may not be blank")
-    @field:JsonProperty("category")
-    val category: String,
+    @field:JsonView(ResourceViews.List::class)
+    val deviceId: String,
 
-    @field:NotEmpty(message="Must have at least one sensor")
-    @field:JsonProperty("sensors", required = false)
-    val sensors: List<SensorMappingRequest>?
+    @field:JsonView(ResourceViews.List::class)
+    val fingerprint: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val name: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val type: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val area: String,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val time: Instant = Instant.now(),
+
+    @field:JsonView(ResourceViews.Details::class)
+    val createdOn: Instant? = null,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val modifiedOn: Instant? = null,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val version: Int? = null
 
 )

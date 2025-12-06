@@ -21,13 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package io.jrb.labs.rtl433dp.features.recommendation
 
-package io.jrb.labs.rtl433dp.features.model.repository
+import org.springframework.boot.context.properties.ConfigurationProperties
 
-import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
-import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
-import reactor.core.publisher.Flux
-
-interface ModelRepositoryCustom {
-    fun search(search: Rtl433Search): Flux<ModelEntity>
-}
+@ConfigurationProperties(prefix = "application.recommendation")
+data class RecommendationDatafill(
+    val enabled: Boolean = true,
+    val bucketCountThreshold: Long = 30,
+    val bucketDurationMinutes: Long = 60,
+    val dedupeCacheTtlMilliseconds: Long = 1000,
+    val dedupeCacheMaxSize: Long = 1000
+)

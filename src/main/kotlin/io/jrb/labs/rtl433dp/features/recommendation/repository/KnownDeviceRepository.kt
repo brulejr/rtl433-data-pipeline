@@ -22,12 +22,16 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.repository
+package io.jrb.labs.rtl433dp.features.recommendation.repository
 
-import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
-import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
-import reactor.core.publisher.Flux
+import io.jrb.labs.rtl433dp.features.recommendation.entity.KnownDevice
+import org.springframework.data.repository.reactive.ReactiveCrudRepository
+import reactor.core.publisher.Mono
 
-interface ModelRepositoryCustom {
-    fun search(search: Rtl433Search): Flux<ModelEntity>
+interface KnownDeviceRepository : ReactiveCrudRepository<KnownDevice, String> {
+
+    fun findByModelAndDeviceId(model: String, deviceId: String): Mono<KnownDevice>
+
+    fun findByFingerprint(fingerprint: String): Mono<KnownDevice>
+
 }

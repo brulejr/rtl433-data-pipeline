@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.entities
+package io.jrb.labs.rtl433dp.features.model.entity
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.model.Entity
-import io.jrb.labs.rtl433dp.features.model.resources.ModelResource
+import io.jrb.labs.rtl433dp.features.model.resource.ModelResource
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 import kotlin.collections.map

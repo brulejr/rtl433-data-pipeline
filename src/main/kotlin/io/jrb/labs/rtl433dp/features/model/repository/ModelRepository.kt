@@ -25,7 +25,7 @@
 package io.jrb.labs.rtl433dp.features.model.repository
 
 import io.jrb.labs.commons.repository.EntityRepository
-import io.jrb.labs.rtl433dp.features.model.entities.ModelEntity
+import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono

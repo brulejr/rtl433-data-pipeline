@@ -27,8 +27,10 @@ package io.jrb.labs.rtl433dp.features.model
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.model.entities.ModelEntity
+import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
+import io.jrb.labs.rtl433dp.features.model.messaging.ModelPipelineEventConsumer
 import io.jrb.labs.rtl433dp.features.model.repository.ModelRepository
+import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import jakarta.annotation.PostConstruct
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -45,15 +47,6 @@ class ModelConfiguration(
 ) {
 
     @Bean
-    fun modelService(
-        modelRepository: ModelRepository,
-        objectMapper: ObjectMapper,
-        systemEventBus: SystemEventBus
-    ) : ModelService {
-        return ModelService(modelRepository, objectMapper, systemEventBus)
-    }
-
-    @Bean
     fun modelPipelineEventConsumer(
         modelService: ModelService,
         eventBus: PipelineEventBus,
@@ -62,16 +55,26 @@ class ModelConfiguration(
         return ModelPipelineEventConsumer(modelService, eventBus, systemEventBus)
     }
 
+    @Bean
+    fun modelService(
+        modelRepository: ModelRepository,
+        objectMapper: ObjectMapper,
+        systemEventBus: SystemEventBus
+    ) : ModelService {
+        return ModelService(modelRepository, objectMapper, systemEventBus)
+    }
+
     @PostConstruct
-    fun initIndexes() {
+    fun initModelIndexes() {
         val indexOps: ReactiveIndexOperations = mongoTemplate.indexOps(ModelEntity::class.java)
 
-        val indexes = Index()
+        val modelFingerprintIndex = Index()
             .on("model", Sort.Direction.ASC)
+            .on("fingerprint", Sort.Direction.ASC)
             .unique()
 
         // trigger the reactive index creation (must subscribe)
-        indexOps.createIndex(indexes)
+        indexOps.createIndex(modelFingerprintIndex)
             .subscribe { idx -> println("✅ Ensured index created: $idx") }
     }
 

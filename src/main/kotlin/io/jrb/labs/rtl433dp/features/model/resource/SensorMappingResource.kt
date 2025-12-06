@@ -22,12 +22,26 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.repository
+package io.jrb.labs.rtl433dp.features.model.resource
 
-import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
-import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
-import reactor.core.publisher.Flux
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonView
+import io.jrb.labs.commons.client.ResourceViews
+import io.jrb.labs.rtl433dp.types.SensorType
 
-interface ModelRepositoryCustom {
-    fun search(search: Rtl433Search): Flux<ModelEntity>
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class SensorMappingResource(
+
+    @field:JsonView(ResourceViews.Details::class)
+    val name: String,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val type: SensorType,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val classname: String,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val friendlyName: String? = null
+
+)

@@ -22,28 +22,43 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.resources
+package io.jrb.labs.rtl433dp.features.recommendation.entity
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
+import io.jrb.labs.rtl433dp.features.recommendation.resource.RecommendationResource
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.Document
+import java.time.Instant
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class Rtl433Search @JsonCreator constructor (
+@Document("recommendations")
+data class Recommendation(
 
-    @field:JsonProperty("model")
-    val model: String?,
+    @Id val id: String? = null,
 
-    @field:JsonProperty("id")
-    val id: String?,
+    val fingerprint: String,
 
-    @field:JsonProperty("name")
-    val name: String?,
+    val model: String,
 
-    @field:JsonProperty("type")
-    val type: String?,
+    val deviceId: String,
 
-    @field:JsonProperty("area")
-    val area: String?
+    val firstSeen: Instant,
 
-) {}
+    val lastSeen: Instant,
+
+    val bucketCount: Long,
+
+    val propertiesSample: Map<String, Any?> = emptyMap(),
+
+    val promoted: Boolean = false
+
+) {
+
+    fun toRecommendationResource(): RecommendationResource {
+        return RecommendationResource(
+            model = this.model,
+            id = this.deviceId,
+            fingerprint = this.fingerprint,
+            bucketCount = this.bucketCount
+        )
+    }
+
+}

@@ -22,12 +22,28 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.repository
+package io.jrb.labs.rtl433dp.features.model.resource
 
-import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
-import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
-import reactor.core.publisher.Flux
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
-interface ModelRepositoryCustom {
-    fun search(search: Rtl433Search): Flux<ModelEntity>
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class Rtl433Search @JsonCreator constructor (
+
+    @field:JsonProperty("model")
+    val model: String?,
+
+    @field:JsonProperty("id")
+    val id: String?,
+
+    @field:JsonProperty("name")
+    val name: String?,
+
+    @field:JsonProperty("type")
+    val type: String?,
+
+    @field:JsonProperty("area")
+    val area: String?
+
+) {}

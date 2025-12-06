@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.ingestion
+package io.jrb.labs.rtl433dp.features.ingestion.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
@@ -53,7 +53,8 @@ class IngestionService(
             _subscriptions[source.name] = source.subscribe(source.topic) { message ->
                 val rtl433Data = objectMapper.readValue(message, Rtl433Data::class.java)
                 log.info("RTL433 data received: {}", rtl433Data)
-                eventBus.send(PipelineEvent.Rtl433DataReceived(
+                eventBus.send(
+                    PipelineEvent.Rtl433DataReceived(
                     source = RawMessageSource.valueOf(source.name),
                     data = rtl433Data
                 ))

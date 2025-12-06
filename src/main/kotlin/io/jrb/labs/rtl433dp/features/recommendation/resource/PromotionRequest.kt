@@ -22,12 +22,15 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.repository
+package io.jrb.labs.rtl433dp.features.recommendation.resource
 
-import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
-import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
-import reactor.core.publisher.Flux
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
-interface ModelRepositoryCustom {
-    fun search(search: Rtl433Search): Flux<ModelEntity>
-}
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class PromotionRequest(
+    val model: String,
+    val id: String,
+    val name: String,
+    val type: String,
+    val area: String
+)

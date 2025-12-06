@@ -22,26 +22,42 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.resources
+package io.jrb.labs.rtl433dp.features.model.resource
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonView
-import io.jrb.labs.commons.client.ResourceViews
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.jrb.labs.rtl433dp.features.model.entity.SensorMapping
 import io.jrb.labs.rtl433dp.types.SensorType
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class SensorMappingResource(
+data class SensorMappingRequest @JsonCreator constructor(
 
-    @field:JsonView(ResourceViews.Details::class)
+    @field:NotBlank(message="Sensor name may not be blank")
+    @field:JsonProperty("name")
     val name: String,
 
-    @field:JsonView(ResourceViews.Details::class)
+    @field:NotNull(message="Sensor type is required")
+    @field:JsonProperty("type")
     val type: SensorType,
 
-    @field:JsonView(ResourceViews.Details::class)
+    @field:NotBlank(message="Sensor class may not be blank")
+    @field:JsonProperty("class")
     val classname: String,
 
-    @field:JsonView(ResourceViews.Details::class)
+    @field:JsonProperty("friendlyName")
     val friendlyName: String? = null
+) {
 
-)
+    fun toSensorMapping(): SensorMapping {
+        return SensorMapping(
+            name = name,
+            type = type,
+            classname = classname,
+            friendlyName = friendlyName
+        )
+    }
+
+}

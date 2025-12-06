@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model
+package io.jrb.labs.rtl433dp.features.model.service
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -33,11 +33,11 @@ import io.jrb.labs.commons.service.ControllableService
 import io.jrb.labs.commons.service.CrudOutcome
 import io.jrb.labs.commons.util.RefLock
 import io.jrb.labs.rtl433dp.events.PipelineEvent
-import io.jrb.labs.rtl433dp.features.model.entities.ModelEntity
+import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
 import io.jrb.labs.rtl433dp.features.model.repository.ModelRepository
-import io.jrb.labs.rtl433dp.features.model.resources.ModelResource
-import io.jrb.labs.rtl433dp.features.model.resources.Rtl433Search
-import io.jrb.labs.rtl433dp.features.model.resources.SensorsUpdateRequest
+import io.jrb.labs.rtl433dp.features.model.resource.ModelResource
+import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
+import io.jrb.labs.rtl433dp.features.model.resource.SensorsUpdateRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull

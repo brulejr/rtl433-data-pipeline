@@ -28,10 +28,10 @@ import com.fasterxml.jackson.annotation.JsonView
 import io.jrb.labs.commons.client.ResourceViews
 import io.jrb.labs.commons.client.ResourceWrapper
 import io.jrb.labs.commons.service.CrudResponse.Companion.crudResponse
-import io.jrb.labs.rtl433dp.features.model.ModelService
-import io.jrb.labs.rtl433dp.features.model.resources.ModelResource
-import io.jrb.labs.rtl433dp.features.model.resources.Rtl433Search
-import io.jrb.labs.rtl433dp.features.model.resources.SensorsUpdateRequest
+import io.jrb.labs.rtl433dp.features.model.service.ModelService
+import io.jrb.labs.rtl433dp.features.model.resource.ModelResource
+import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
+import io.jrb.labs.rtl433dp.features.model.resource.SensorsUpdateRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable

@@ -24,8 +24,8 @@
 
 package io.jrb.labs.rtl433dp.features.model.repository
 
-import io.jrb.labs.rtl433dp.features.model.entities.ModelEntity
-import io.jrb.labs.rtl433dp.features.model.resources.Rtl433Search
+import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
+import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query

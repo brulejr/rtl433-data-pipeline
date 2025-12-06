@@ -31,7 +31,7 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.events.RawMessageSource
-import io.jrb.labs.rtl433dp.features.ingestion.IngestionService
+import io.jrb.labs.rtl433dp.features.ingestion.service.IngestionService
 import io.jrb.labs.rtl433dp.features.ingestion.data.Source
 import io.jrb.labs.rtl433dp.features.ingestion.data.SourceType
 import kotlinx.coroutines.CompletableDeferred

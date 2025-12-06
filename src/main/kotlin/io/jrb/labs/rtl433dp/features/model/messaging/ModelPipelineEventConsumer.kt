@@ -21,27 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433dp.features.model.entities
 
-import io.jrb.labs.rtl433dp.features.model.resources.SensorMappingResource
-import io.jrb.labs.rtl433dp.types.SensorType
-import org.bson.codecs.pojo.annotations.BsonCreator
-import org.bson.codecs.pojo.annotations.BsonProperty
+package io.jrb.labs.rtl433dp.features.model.messaging
 
-data class SensorMapping @BsonCreator constructor(
-    @BsonProperty("name") val name: String,
-    @BsonProperty("type") val type: SensorType,
-    @BsonProperty("classname") val classname: String,
-    @BsonProperty("friendlyName") val friendlyName: String? = null
-) {
+import io.jrb.labs.commons.eventbus.EventBus
+import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.service.ControllableService
+import io.jrb.labs.rtl433dp.events.PipelineEvent
+import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.model.service.ModelService
+import org.slf4j.LoggerFactory
 
-    fun toSensorMappingResource(): SensorMappingResource {
-        return SensorMappingResource(
-            name = name,
-            type = type,
-            classname = classname,
-            friendlyName = friendlyName
-        )
+class ModelPipelineEventConsumer(
+    private val modelService: ModelService,
+    private val eventBus: PipelineEventBus,
+    systemEventBus: SystemEventBus
+) : ControllableService(systemEventBus) {
+
+    private val log = LoggerFactory.getLogger(ModelPipelineEventConsumer::class.java)
+
+    private var subscription: EventBus.Subscription? = null
+
+    override fun onStart() {
+        subscription = eventBus.subscribe<PipelineEvent.Rtl433DataReceived> { event ->
+            modelService.processEvent(event)
+        }
+    }
+
+    override fun onStop() {
+        subscription?.cancel()
+        subscription = null
     }
 
 }

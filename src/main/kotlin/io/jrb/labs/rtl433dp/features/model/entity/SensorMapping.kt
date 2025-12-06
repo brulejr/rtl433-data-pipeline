@@ -21,38 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package io.jrb.labs.rtl433dp.features.model.entity
 
-package io.jrb.labs.rtl433dp.features.model.resources
-
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
-import io.jrb.labs.rtl433dp.features.model.entities.SensorMapping
+import io.jrb.labs.rtl433dp.features.model.resource.SensorMappingResource
 import io.jrb.labs.rtl433dp.types.SensorType
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
+import org.bson.codecs.pojo.annotations.BsonCreator
+import org.bson.codecs.pojo.annotations.BsonProperty
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class SensorMappingRequest @JsonCreator constructor(
-
-    @field:NotBlank(message="Sensor name may not be blank")
-    @field:JsonProperty("name")
-    val name: String,
-
-    @field:NotNull(message="Sensor type is required")
-    @field:JsonProperty("type")
-    val type: SensorType,
-
-    @field:NotBlank(message="Sensor class may not be blank")
-    @field:JsonProperty("class")
-    val classname: String,
-
-    @field:JsonProperty("friendlyName")
-    val friendlyName: String? = null
+data class SensorMapping @BsonCreator constructor(
+    @BsonProperty("name") val name: String,
+    @BsonProperty("type") val type: SensorType,
+    @BsonProperty("classname") val classname: String,
+    @BsonProperty("friendlyName") val friendlyName: String? = null
 ) {
 
-    fun toSensorMapping(): SensorMapping {
-        return SensorMapping(
+    fun toSensorMappingResource(): SensorMappingResource {
+        return SensorMappingResource(
             name = name,
             type = type,
             classname = classname,
