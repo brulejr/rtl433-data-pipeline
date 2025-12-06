@@ -24,9 +24,7 @@
 
 package io.jrb.labs.rtl433dp.features.model.service
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.logging.LoggerDelegate
 import io.jrb.labs.commons.service.ControllableService
@@ -43,8 +41,6 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.sync.withLock
 import reactor.core.publisher.Mono
-import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 
 class ModelService(
@@ -84,10 +80,10 @@ class ModelService(
         }
     }
 
-    suspend fun processEvent(event: PipelineEvent.Rtl433DataReceived): ModelResource {
+    suspend fun processEvent(event: PipelineEvent.Rtl433DataFingerprinted): ModelResource {
         val modelName = event.data.model
-        val jsonStructure = extractJsonStructure(event)
-        val fingerprint = fingerprint(jsonStructure)
+        val fingerprint = event.fingerprint
+        val jsonStructure = event.jsonStructure
 
         val key = lockKey(modelName, fingerprint)
         val refLock = locks.computeIfAbsent(key) { RefLock() }
@@ -154,41 +150,6 @@ class ModelService(
         }
     }
 
-    private fun extractJsonStructure(event: PipelineEvent.Rtl433DataReceived): String {
-        val rawJson = objectMapper.writeValueAsString(event)
-        val jsonTree = objectMapper.readTree(rawJson)
-        val jsonStructure = toJsonStructure(jsonTree)
-        log.info("JSON: $rawJson")
-        log.info("JSON Structure: $jsonStructure")
-        return objectMapper.writeValueAsString(jsonStructure)
-    }
-
-    private fun fingerprint(input: String, algorithm: String = "SHA-256"): String {
-        val bytes = MessageDigest.getInstance(algorithm).digest(input.toByteArray(StandardCharsets.UTF_8))
-        return bytes.joinToString("") { "%02x".format(it) }
-    }
-
     private fun lockKey(model: String, fingerprint: String) = "$model::$fingerprint"
-
-    private fun toJsonStructure(node: JsonNode): JsonNode {
-        return when {
-            node.isObject -> {
-                val sortedNode = objectMapper.createObjectNode()
-                node.fieldNames().asSequence().sorted().forEach { key ->
-                    sortedNode.set<JsonNode>(key, toJsonStructure(node[key]))
-                }
-                sortedNode
-            }
-            node.isArray -> {
-                val arrayPlaceholder = JsonNodeFactory.instance.textNode("array") // Represents an array
-                arrayPlaceholder
-            }
-            node.isTextual -> JsonNodeFactory.instance.textNode("string")
-            node.isNumber -> JsonNodeFactory.instance.textNode("number")
-            node.isBoolean -> JsonNodeFactory.instance.textNode("boolean")
-            node.isNull -> JsonNodeFactory.instance.textNode("null")
-            else -> JsonNodeFactory.instance.textNode("unknown")
-        }
-    }
 
 }

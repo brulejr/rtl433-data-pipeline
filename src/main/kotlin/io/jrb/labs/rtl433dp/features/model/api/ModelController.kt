@@ -32,6 +32,7 @@ import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import io.jrb.labs.rtl433dp.features.model.resource.ModelResource
 import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
 import io.jrb.labs.rtl433dp.features.model.resource.SensorsUpdateRequest
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/models")
+@ConditionalOnProperty(prefix = "application.model", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class ModelController(private val modelService: ModelService) {
 
     @GetMapping("/{modelName}/{fingerprint}")

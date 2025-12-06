@@ -31,6 +31,7 @@ import io.jrb.labs.rtl433dp.features.recommendation.resource.PromotionRequest
 import io.jrb.labs.rtl433dp.features.recommendation.service.KnownDeviceService
 import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/known-devices")
+@ConditionalOnProperty(prefix = "application.recommendation", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class KnownDeviceController(
     private val knownDeviceService: KnownDeviceService,
     private val recommendationService: RecommendationService

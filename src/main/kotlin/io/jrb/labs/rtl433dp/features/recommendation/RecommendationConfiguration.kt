@@ -35,6 +35,7 @@ import io.jrb.labs.rtl433dp.features.recommendation.service.KnownDeviceService
 import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
 import jakarta.annotation.PostConstruct
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.Sort
@@ -43,6 +44,7 @@ import org.springframework.data.mongodb.core.index.Index
 import java.time.Duration
 
 @Configuration
+@ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.recommendation"])
 @ConditionalOnProperty(prefix = "application.recommendation", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class RecommendationConfiguration(
     private val mongoTemplate: ReactiveMongoTemplate
@@ -59,7 +61,7 @@ class RecommendationConfiguration(
     }
 
     @Bean
-    fun fingerprintService(
+    fun recommendationFingerprintService(
         mongo: ReactiveMongoTemplate,
         datafill: RecommendationDatafill
     ) : FingerprintService {

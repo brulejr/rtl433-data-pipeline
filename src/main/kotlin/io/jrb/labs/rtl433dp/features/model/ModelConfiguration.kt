@@ -32,6 +32,7 @@ import io.jrb.labs.rtl433dp.features.model.repository.ModelRepository
 import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import jakarta.annotation.PostConstruct
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.Sort
@@ -40,6 +41,7 @@ import org.springframework.data.mongodb.core.index.Index
 import org.springframework.data.mongodb.core.index.ReactiveIndexOperations
 
 @Configuration
+@ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.model"])
 @ConditionalOnProperty(prefix = "application.model", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class ModelConfiguration(
     private val mongoTemplate: ReactiveMongoTemplate

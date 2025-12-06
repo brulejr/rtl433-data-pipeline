@@ -31,10 +31,12 @@ import io.jrb.labs.rtl433dp.features.ingestion.data.Source
 import io.jrb.labs.rtl433dp.features.ingestion.data.mqtt.HiveMqttSource
 import io.jrb.labs.rtl433dp.features.ingestion.service.IngestionService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
+@ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.ingestion"])
 @ConditionalOnProperty(prefix = "application.ingestion", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class IngestionConfiguration {
 

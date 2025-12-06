@@ -24,18 +24,29 @@
 
 package io.jrb.labs.rtl433dp.features.fingerprint
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.fingerprint.service.FingerprintService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
+@ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.fingerprint"])
 @ConditionalOnProperty(prefix = "application.fingerprint", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class FingerprintConfiguration {
 
     @Bean
-    fun fingerprintEventConsumer(eventBus: PipelineEventBus, systemEventBus: SystemEventBus) =
-        FingerprintEventConsumer(eventBus, systemEventBus)
+    fun fingerprintEventConsumer(
+        fingerprintService: FingerprintService,
+        eventBus: PipelineEventBus,
+        systemEventBus: SystemEventBus
+    ) = FingerprintEventConsumer(fingerprintService, eventBus, systemEventBus)
+
+    @Bean
+    fun fingerprintService(objectMapper: ObjectMapper, systemEventBus: SystemEventBus) =
+        FingerprintService(objectMapper, systemEventBus)
 
 }

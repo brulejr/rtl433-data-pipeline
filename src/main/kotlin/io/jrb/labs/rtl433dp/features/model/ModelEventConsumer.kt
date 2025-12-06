@@ -34,13 +34,13 @@ class ModelEventConsumer(
     private val modelService: ModelService,
     eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
-) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataReceived>(
-    kClass = PipelineEvent.Rtl433DataReceived::class,
+) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataFingerprinted>(
+    kClass = PipelineEvent.Rtl433DataFingerprinted::class,
     eventBus = eventBus,
     systemEventBus = systemEventBus
 ) {
 
-    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataReceived) {
+    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataFingerprinted) {
         modelService.processEvent(event)
     }
 

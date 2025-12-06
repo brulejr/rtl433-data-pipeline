@@ -28,6 +28,7 @@ import io.jrb.labs.commons.client.ResourceWrapper
 import io.jrb.labs.commons.service.CrudResponse.Companion.crudResponse
 import io.jrb.labs.rtl433dp.features.recommendation.resource.RecommendationResource
 import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/recommendations")
+@ConditionalOnProperty(prefix = "application.recommendation", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class RecommendationController(private val recommendationService: RecommendationService) {
 
     @GetMapping("/candidates")
