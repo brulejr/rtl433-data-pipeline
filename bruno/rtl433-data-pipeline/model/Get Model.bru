@@ -1,0 +1,21 @@
+meta {
+  name: Get Model
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{rtl433_data_pipeline_url}}/api/v1/models/:modelName/:fingerprint
+  body: none
+  auth: inherit
+}
+
+params:path {
+  modelName: Acurite-Tower
+  fingerprint: 7df6c45b2b6555186d5015e977dadc72cc9bbbd61a05864b31cba1fa783e1b9f
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

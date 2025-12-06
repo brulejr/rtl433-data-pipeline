@@ -1,0 +1,35 @@
+meta {
+  name: Update Sensors (DSC-Security)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{rtl433_data_pipeline_url}}/api/v1/models/:modelName/:fingerprint/sensors
+  body: json
+  auth: inherit
+}
+
+params:path {
+  modelName: DSC-Security
+  fingerprint: 49deecde6df12a318ef268aa4f490682966721671bfb5c9833aa33b6a735ca6f
+}
+
+body:json {
+  {
+    "model": "DSC-Security",
+    "category": "security",
+    "sensors": [    
+      { "name": "closed", "type": "BINARY", "class": "door" },
+      { "name": "battery_ok", "type": "BINARY", "class": "battery", "friendlyName": "battery" },
+      { "name": "tamper", "type": "BINARY", "class": "tamper" },
+      { "name": "exception", "type": "ANALOG", "class": "problem" },
+      { "name": "timestamp", "type": "ANALOG", "class": "timestamp" }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

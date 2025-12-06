@@ -1,0 +1,16 @@
+meta {
+  name: Get Models
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{rtl433_data_pipeline_url}}/api/v1/models
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

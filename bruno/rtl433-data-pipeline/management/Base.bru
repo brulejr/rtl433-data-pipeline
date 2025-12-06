@@ -1,0 +1,16 @@
+meta {
+  name: Base
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{rtl433_data_pipeline_url}}/mgmt
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
