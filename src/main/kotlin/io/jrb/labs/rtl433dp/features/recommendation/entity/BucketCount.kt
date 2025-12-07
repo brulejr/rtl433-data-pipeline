@@ -27,12 +27,14 @@ package io.jrb.labs.rtl433dp.features.recommendation.entity
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document("fingerprint-counts")
-data class FingerprintCount(
+@Document("bucket-counts")
+data class BucketCount(
 
     @Id val id: String? = null,   // composed key: "<fingerprint>#<bucketStartEpoch>"
 
-    val fingerprint: String,
+    val deviceFingerprint: String,
+
+    val modelFingerprint: String,
 
     val bucketStartEpoch: Long,    // epoch minutes or epoch seconds - consistent use required
 

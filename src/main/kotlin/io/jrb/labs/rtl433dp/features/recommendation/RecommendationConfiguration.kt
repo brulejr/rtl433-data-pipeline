@@ -26,7 +26,7 @@ package io.jrb.labs.rtl433dp.features.recommendation
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.recommendation.entity.FingerprintCount
+import io.jrb.labs.rtl433dp.features.recommendation.entity.BucketCount
 import io.jrb.labs.rtl433dp.features.recommendation.entity.Recommendation
 import io.jrb.labs.rtl433dp.features.recommendation.repository.KnownDeviceRepository
 import io.jrb.labs.rtl433dp.features.recommendation.repository.RecommendationRepository
@@ -87,7 +87,7 @@ class RecommendationConfiguration(
             .on("bucketStartEpoch", Sort.Direction.ASC)
             .expire(Duration.ofDays(1))
         mongoTemplate
-            .indexOps(FingerprintCount::class.java)
+            .indexOps(BucketCount::class.java)
             .createIndex(index)
             .subscribe { idx -> println("✅ Ensured fingerprint indexes created: $idx") }
     }

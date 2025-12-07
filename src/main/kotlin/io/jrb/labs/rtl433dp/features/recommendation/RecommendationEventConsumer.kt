@@ -43,15 +43,14 @@ class RecommendationEventConsumer(
 ) {
 
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataFingerprinted) {
-        log.debug("event - {}", event)
         val payload = event.data
         val deviceId = payload.id
         val propertiesSample = payload.getProperties()
 
-        val (fingerprint, bucketCount) = bucketingService.registerObservation(payload)
+        val (deviceFingerprint, bucketCount) = bucketingService.registerObservation(event)
 
         recommendationService.maybeCreateRecommendation(
-            fingerprint = fingerprint,
+            fingerprint = deviceFingerprint,
             model = payload.model,
             deviceId = deviceId,
             bucketCount = bucketCount,

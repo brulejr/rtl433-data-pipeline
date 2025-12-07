@@ -26,11 +26,12 @@ package io.jrb.labs.rtl433dp.features.recommendation.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.reactivecircus.cache4k.Cache
-import io.jrb.labs.commons.logging.LoggerDelegate
+import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.features.recommendation.RecommendationDatafill
-import io.jrb.labs.rtl433dp.features.recommendation.entity.FingerprintCount
+import io.jrb.labs.rtl433dp.features.recommendation.entity.BucketCount
 import io.jrb.labs.rtl433dp.types.Rtl433Data
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -45,7 +46,8 @@ class BucketingService(
     private val mongoTemplate: ReactiveMongoTemplate,
     private val datafill: RecommendationDatafill
 ) {
-    private val log by LoggerDelegate()
+
+    private val log = LoggerFactory.getLogger(BucketingService::class.java)
 
     private val mapper: ObjectMapper = jacksonObjectMapper()
 
@@ -58,36 +60,38 @@ class BucketingService(
      * Register a single observation. Returns the new bucket count (after increment).
      * Uses in-memory cache to suppress frequent DB writes for the same fingerprint within TTL.
      */
-    suspend fun registerObservation(data: Rtl433Data): Pair<String, Long> {
-        val now = Instant.now()
-        val fingerprint = fingerprintFor(data)
+    suspend fun registerObservation(event: PipelineEvent.Rtl433DataFingerprinted): Pair<String, Long> {
+        val data = event.data
+        val deviceFingerprint = deviceFingerprint(data)
 
+        val now = Instant.now()
         val bucketStart = bucketStartEpochMinutes(now, datafill.bucketDurationMinutes)
-        val key = "$fingerprint#$bucketStart"
+        val key = "$deviceFingerprint#$bucketStart"
 
         val cached = cache.get(key) ?: false
         val count =  when (cached) {
             true -> {
-                mongoTemplate.findById(key, FingerprintCount::class.java).awaitFirstOrNull()?.count ?: 0L
+                mongoTemplate.findById(key, BucketCount::class.java).awaitFirstOrNull()?.count ?: 0L
             }
             false -> {
                 cache.put(key, true)
                 val q = Query.query(Criteria.where("_id").`is`(key))
                 val update = Update()
                     .inc("count", 1)
-                    .setOnInsert("fingerprint", fingerprint)
+                    .setOnInsert("deviceFingerprint", deviceFingerprint)
+                    .setOnInsert("modelFingerprint", event.fingerprint)
                     .setOnInsert("bucketStartEpoch", bucketStart)
 
-                mongoTemplate.upsert(q, update, FingerprintCount::class.java).awaitFirstOrNull()
-                mongoTemplate.findById(key, FingerprintCount::class.java).awaitFirstOrNull()?.count ?: 1L
+                mongoTemplate.upsert(q, update, BucketCount::class.java).awaitFirstOrNull()
+                mongoTemplate.findById(key, BucketCount::class.java).awaitFirstOrNull()?.count ?: 1L
             }
         }
 
-        log.info("Observation -> dupe = {}, model = {}, id = {}, fingerprint='{}', bucketStart='{}', count='{}'",
-            cached, data.model, data.id, fingerprint, bucketStart, count
+        log.info("Observation -> dupe = {}, model = {}, id = {}, count='{}', bucketStart='{}', deviceFingerprint='{}', modelFingerprint='{}'",
+            cached, data.model, data.id, count, bucketStart, deviceFingerprint, event.fingerprint
         )
 
-        return Pair(fingerprint, count)
+        return Pair(deviceFingerprint, count)
     }
 
     fun bucketStartEpochMinutes(now: Instant, bucketMinutes: Long): Long {
@@ -96,13 +100,12 @@ class BucketingService(
         return bucket
     }
 
-    fun fingerprintFor(data: Rtl433Data): String {
+    fun deviceFingerprint(data: Rtl433Data): String {
         val base = mapOf(
             "model" to data.model,
             "deviceId" to data.id
         )
         val json = mapper.writeValueAsString(base)
-        log.info("JSON for fingerprint: {}", json)
         val digest = MessageDigest.getInstance("SHA-256").digest(json.toByteArray(StandardCharsets.UTF_8))
         return digest.joinToString("") { "%02x".format(it) }
     }
