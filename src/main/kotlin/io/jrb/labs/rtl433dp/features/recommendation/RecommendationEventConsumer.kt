@@ -28,27 +28,27 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.recommendation.service.FingerprintService
+import io.jrb.labs.rtl433dp.features.recommendation.service.BucketingService
 import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
 
 class RecommendationEventConsumer(
-    private val fingerprintService: FingerprintService,
+    private val bucketingService: BucketingService,
     private val recommendationService: RecommendationService,
     eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
-) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataReceived>(
-    kClass = PipelineEvent.Rtl433DataReceived::class,
+) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataFingerprinted>(
+    kClass = PipelineEvent.Rtl433DataFingerprinted::class,
     eventBus = eventBus,
     systemEventBus = systemEventBus
 ) {
 
-    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataReceived) {
+    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataFingerprinted) {
         log.debug("event - {}", event)
         val payload = event.data
         val deviceId = payload.id
         val propertiesSample = payload.getProperties()
 
-        val (fingerprint, bucketCount) = fingerprintService.registerObservation(payload)
+        val (fingerprint, bucketCount) = bucketingService.registerObservation(payload)
 
         recommendationService.maybeCreateRecommendation(
             fingerprint = fingerprint,

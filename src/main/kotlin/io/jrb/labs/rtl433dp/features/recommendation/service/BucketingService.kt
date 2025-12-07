@@ -41,7 +41,7 @@ import java.time.Instant
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-class FingerprintService(
+class BucketingService(
     private val mongoTemplate: ReactiveMongoTemplate,
     private val datafill: RecommendationDatafill
 ) {

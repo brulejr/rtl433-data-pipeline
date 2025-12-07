@@ -30,7 +30,7 @@ import io.jrb.labs.rtl433dp.features.recommendation.entity.FingerprintCount
 import io.jrb.labs.rtl433dp.features.recommendation.entity.Recommendation
 import io.jrb.labs.rtl433dp.features.recommendation.repository.KnownDeviceRepository
 import io.jrb.labs.rtl433dp.features.recommendation.repository.RecommendationRepository
-import io.jrb.labs.rtl433dp.features.recommendation.service.FingerprintService
+import io.jrb.labs.rtl433dp.features.recommendation.service.BucketingService
 import io.jrb.labs.rtl433dp.features.recommendation.service.KnownDeviceService
 import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
 import jakarta.annotation.PostConstruct
@@ -52,20 +52,20 @@ class RecommendationConfiguration(
 
     @Bean
     fun recommendationPipelineEventConsumer(
-        fingerprintService: FingerprintService,
+        bucketingService: BucketingService,
         recommendationService: RecommendationService,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
     ) : RecommendationEventConsumer {
-        return RecommendationEventConsumer(fingerprintService, recommendationService, eventBus, systemEventBus)
+        return RecommendationEventConsumer(bucketingService, recommendationService, eventBus, systemEventBus)
     }
 
     @Bean
-    fun recommendationFingerprintService(
+    fun bucketingService(
         mongo: ReactiveMongoTemplate,
         datafill: RecommendationDatafill
-    ) : FingerprintService {
-        return FingerprintService(mongo, datafill)
+    ) : BucketingService {
+        return BucketingService(mongo, datafill)
     }
 
     @Bean

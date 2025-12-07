@@ -25,8 +25,7 @@ management.info:
 logging.level:
   org.springframework: INFO
 
-application:
-  fingerprint:
+application.fingerprint:
     enabled: true
     excluded-fields:
       - name
