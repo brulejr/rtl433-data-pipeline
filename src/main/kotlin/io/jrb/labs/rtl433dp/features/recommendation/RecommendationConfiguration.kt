@@ -95,7 +95,7 @@ class RecommendationConfiguration(
     @PostConstruct
     fun initRecommendationIndexes() {
         val index = Index()
-            .on("fingerprint", Sort.Direction.ASC)
+            .on("deviceFingerprint", Sort.Direction.ASC)
             .unique()
         mongoTemplate
             .indexOps(Recommendation::class.java)

@@ -32,6 +32,10 @@ data class BucketCount(
 
     @Id val id: String? = null,   // composed key: "<fingerprint>#<bucketStartEpoch>"
 
+    val deviceId: String,
+
+    val model: String,
+
     val deviceFingerprint: String,
 
     val modelFingerprint: String,
