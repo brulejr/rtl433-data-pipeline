@@ -48,15 +48,14 @@ class KnownDeviceController(
     private val recommendationService: RecommendationService
 ) {
 
-    @PostMapping("/promote/{fingerprint}")
+    @PostMapping("/promote/{deviceFingerprint}")
     suspend fun promoteRecommendation(
-        @PathVariable fingerprint: String,
+        @PathVariable deviceFingerprint: String,
         @RequestBody promotionRequest: PromotionRequest
     ): ResponseEntity<KnownDeviceResource> {
-        // you’ll need a RecommendationRepository for this
-        val recommendation = recommendationService.findByFingerprint(fingerprint).awaitSingleOrNull()
+        val recommendation = recommendationService.findByDeviceFingerprint(deviceFingerprint).awaitSingleOrNull()
         if (recommendation != null) {
-            val promoted = knownDeviceService.promoteRecommendation(fingerprint, promotionRequest)
+            val promoted = knownDeviceService.promoteRecommendation(deviceFingerprint, promotionRequest)
             return ResponseEntity.ok(promoted)
         } else {
             return ResponseEntity.notFound().build()

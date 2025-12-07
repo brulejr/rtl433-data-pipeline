@@ -32,13 +32,16 @@ import io.jrb.labs.commons.client.ResourceViews
 data class RecommendationResource(
 
     @field:JsonView(ResourceViews.List::class)
-    val model: String,
-
-    @field:JsonView(ResourceViews.List::class)
     val id: String,
 
     @field:JsonView(ResourceViews.List::class)
-    val fingerprint: String,
+    val model: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val deviceFingerprint: String,
+
+    @field:JsonView(ResourceViews.List::class)
+    val modelFingerprint: String,
 
     @field:JsonView(ResourceViews.List::class)
     val bucketCount: Long

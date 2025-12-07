@@ -42,23 +42,25 @@ class RecommendationService(
     private val log by LoggerDelegate()
 
     suspend fun maybeCreateRecommendation(
-        fingerprint: String,
-        model: String,
         deviceId: String,
+        model: String,
+        deviceFingerprint: String,
+        modelFingerprint: String,
         bucketCount: Long,
         propertiesSample: Map<String, Any?>
     ): Recommendation? {
         if (bucketCount < datafill.bucketCountThreshold) return null
 
         val now = Instant.now()
-        val existing = repository.findByFingerprint(fingerprint).awaitFirstOrNull()
+        val existing = repository.findByDeviceFingerprint(deviceFingerprint).awaitFirstOrNull()
 
         val recommendation = if (existing == null) {
             Recommendation(
                 id = null,
-                fingerprint = fingerprint,
-                model = model,
                 deviceId = deviceId,
+                model = model,
+                deviceFingerprint = deviceFingerprint,
+                modelFingerprint = modelFingerprint,
                 firstSeen = now,
                 lastSeen = now,
                 bucketCount = bucketCount,
@@ -72,8 +74,8 @@ class RecommendationService(
         return repository.save(recommendation).awaitFirstOrNull()
     }
 
-    fun findByFingerprint(fingerprint: String): Mono<Recommendation> {
-        return repository.findByFingerprint(fingerprint)
+    fun findByDeviceFingerprint(deviceFingerprint: String): Mono<Recommendation> {
+        return repository.findByDeviceFingerprint(deviceFingerprint)
     }
 
     suspend fun listCandidates(): CrudOutcome<List<RecommendationResource>> {

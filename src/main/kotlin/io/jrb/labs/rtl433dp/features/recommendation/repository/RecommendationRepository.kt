@@ -33,6 +33,6 @@ interface RecommendationRepository : ReactiveMongoRepository<Recommendation, Str
 
     fun findAllByPromotedIsFalse(): Flux<Recommendation>
 
-    fun findByFingerprint(fingerprint: String): Mono<Recommendation>
+    fun findByDeviceFingerprint(deviceFingerprint: String): Mono<Recommendation>
 
 }

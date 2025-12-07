@@ -34,11 +34,13 @@ data class Recommendation(
 
     @Id val id: String? = null,
 
-    val fingerprint: String,
+    val deviceId: String,
 
     val model: String,
 
-    val deviceId: String,
+    val deviceFingerprint: String,
+
+    val modelFingerprint: String,
 
     val firstSeen: Instant,
 
@@ -54,9 +56,10 @@ data class Recommendation(
 
     fun toRecommendationResource(): RecommendationResource {
         return RecommendationResource(
-            model = this.model,
             id = this.deviceId,
-            fingerprint = this.fingerprint,
+            model = this.model,
+            deviceFingerprint = this.deviceFingerprint,
+            modelFingerprint = this.modelFingerprint,
             bucketCount = this.bucketCount
         )
     }
