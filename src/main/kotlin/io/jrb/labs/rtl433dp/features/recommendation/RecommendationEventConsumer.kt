@@ -47,13 +47,13 @@ class RecommendationEventConsumer(
         val deviceId = payload.id
         val propertiesSample = payload.getProperties()
 
-        val (deviceFingerprint, bucketCount) = bucketingService.registerObservation(event)
+        val bucketCount = bucketingService.registerObservation(event)
 
         recommendationService.maybeCreateRecommendation(
             deviceId = deviceId,
             model = payload.model,
-            deviceFingerprint = deviceFingerprint,
-            modelFingerprint = event.fingerprint,
+            deviceFingerprint = event.deviceFingerprint,
+            modelFingerprint = event.modelFingerprint,
             bucketCount = bucketCount,
             propertiesSample = propertiesSample
         )

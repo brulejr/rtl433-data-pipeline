@@ -23,21 +23,16 @@
  */
 package io.jrb.labs.rtl433dp.features.recommendation.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.reactivecircus.cache4k.Cache
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.features.recommendation.RecommendationDatafill
 import io.jrb.labs.rtl433dp.features.recommendation.entity.BucketCount
-import io.jrb.labs.rtl433dp.types.Rtl433Data
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
-import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
 import java.time.Instant
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -49,8 +44,6 @@ class BucketingService(
 
     private val log = LoggerFactory.getLogger(BucketingService::class.java)
 
-    private val mapper: ObjectMapper = jacksonObjectMapper()
-
     private val cache = Cache.Builder<String, Boolean>()
         .expireAfterWrite(datafill.dedupeCacheTtlMilliseconds.toDuration(DurationUnit.MILLISECONDS))
         .maximumCacheSize(datafill.dedupeCacheMaxSize)
@@ -60,9 +53,9 @@ class BucketingService(
      * Register a single observation. Returns the new bucket count (after increment).
      * Uses in-memory cache to suppress frequent DB writes for the same fingerprint within TTL.
      */
-    suspend fun registerObservation(event: PipelineEvent.Rtl433DataFingerprinted): Pair<String, Long> {
+    suspend fun registerObservation(event: PipelineEvent.Rtl433DataFingerprinted): Long {
         val data = event.data
-        val deviceFingerprint = deviceFingerprint(data)
+        val deviceFingerprint = event.deviceFingerprint
 
         val now = Instant.now()
         val bucketStart = bucketStartEpochMinutes(now, datafill.bucketDurationMinutes)
@@ -79,7 +72,7 @@ class BucketingService(
                 val update = Update()
                     .inc("count", 1)
                     .setOnInsert("deviceFingerprint", deviceFingerprint)
-                    .setOnInsert("modelFingerprint", event.fingerprint)
+                    .setOnInsert("modelFingerprint", event.modelFingerprint)
                     .setOnInsert("bucketStartEpoch", bucketStart)
 
                 mongoTemplate.upsert(q, update, BucketCount::class.java).awaitFirstOrNull()
@@ -88,26 +81,16 @@ class BucketingService(
         }
 
         log.info("Observation -> dupe = {}, model = {}, id = {}, count='{}', bucketStart='{}', deviceFingerprint='{}', modelFingerprint='{}'",
-            cached, data.model, data.id, count, bucketStart, deviceFingerprint, event.fingerprint
+            cached, data.model, data.id, count, bucketStart, deviceFingerprint, event.modelFingerprint
         )
 
-        return Pair(deviceFingerprint, count)
+        return count
     }
 
     fun bucketStartEpochMinutes(now: Instant, bucketMinutes: Long): Long {
         val epochMin = now.epochSecond / 60
         val bucket = (epochMin / bucketMinutes) * bucketMinutes
         return bucket
-    }
-
-    fun deviceFingerprint(data: Rtl433Data): String {
-        val base = mapOf(
-            "model" to data.model,
-            "deviceId" to data.id
-        )
-        val json = mapper.writeValueAsString(base)
-        val digest = MessageDigest.getInstance("SHA-256").digest(json.toByteArray(StandardCharsets.UTF_8))
-        return digest.joinToString("") { "%02x".format(it) }
     }
 
 }

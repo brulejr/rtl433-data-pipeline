@@ -45,6 +45,33 @@ class FingerprintService(
     private val log = LoggerFactory.getLogger(FingerprintService::class.java)
 
     fun fingerprint(data: Rtl433Data): Fingerprint {
+        val deviceFingerprint = deviceFingerprint(data)
+        val modelStructure = modelStructure(data)
+        val modelFingerprint = fingerprintHash(modelStructure)
+
+        log.info("Fingerprint -> model = {}, id = {}, deviceFingerprint='{}', modelFingerprint='{}', modelStructure='{}'",
+            data.model, data.id, deviceFingerprint, modelFingerprint, modelStructure
+        )
+
+        return Fingerprint(deviceFingerprint, modelFingerprint, modelStructure)
+    }
+
+    private fun deviceFingerprint(data: Rtl433Data): String {
+        val base = mapOf(
+            "model" to data.model,
+            "deviceId" to data.id
+        )
+        val json = objectMapper.writeValueAsString(base)
+        return fingerprintHash(json)
+    }
+
+    private fun fingerprintHash(input: String, algorithm: String = "SHA-256"): String {
+        val bytes = MessageDigest.getInstance(algorithm)
+            .digest(input.toByteArray(StandardCharsets.UTF_8))
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    private fun modelStructure(data: Rtl433Data): String {
         val rawJson = objectMapper.writeValueAsString(data)
         val jsonTree = objectMapper.readTree(rawJson)
 
@@ -56,18 +83,7 @@ class FingerprintService(
             }
 
         val jsonStructure = toJsonStructure(filteredTree)
-        val rawJsonStructure = objectMapper.writeValueAsString(jsonStructure)
-
-        return Fingerprint(
-            fingerprintHash(rawJsonStructure),
-            rawJsonStructure
-        )
-    }
-
-    private fun fingerprintHash(input: String, algorithm: String = "SHA-256"): String {
-        val bytes = MessageDigest.getInstance(algorithm)
-            .digest(input.toByteArray(StandardCharsets.UTF_8))
-        return bytes.joinToString("") { "%02x".format(it) }
+        return objectMapper.writeValueAsString(jsonStructure)
     }
 
     /**
@@ -146,9 +162,6 @@ class FingerprintService(
         return names
     }
 
-    private fun Set<String>.sortedSafe(max: Int = 50): List<String> =
-        this.asSequence().sorted().take(max).toList()
-
     private fun toJsonStructure(node: JsonNode): JsonNode {
         return when {
             node.isObject -> {
@@ -166,5 +179,8 @@ class FingerprintService(
             else -> JsonNodeFactory.instance.textNode("unknown")
         }
     }
+
+    private fun Set<String>.sortedSafe(max: Int = 50): List<String> =
+        this.asSequence().sorted().take(max).toList()
 
 }

@@ -26,7 +26,6 @@ package io.jrb.labs.rtl433dp.features.model.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
-import io.jrb.labs.commons.logging.LoggerDelegate
 import io.jrb.labs.commons.service.ControllableService
 import io.jrb.labs.commons.service.CrudOutcome
 import io.jrb.labs.commons.util.RefLock
@@ -48,8 +47,6 @@ class ModelService(
     private val objectMapper: ObjectMapper,
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
-
-    private val log by LoggerDelegate()
 
     private val locks = ConcurrentHashMap<String, RefLock>()
 
@@ -82,16 +79,16 @@ class ModelService(
 
     suspend fun processEvent(event: PipelineEvent.Rtl433DataFingerprinted): ModelResource {
         val modelName = event.data.model
-        val fingerprint = event.fingerprint
-        val jsonStructure = event.jsonStructure
+        val modelFingerprint = event.modelFingerprint
+        val modelStructure = event.modelStructure
 
-        val key = lockKey(modelName, fingerprint)
+        val key = lockKey(modelName, modelFingerprint)
         val refLock = locks.computeIfAbsent(key) { RefLock() }
         refLock.refCount.incrementAndGet()
 
         try {
             return refLock.mutex.withLock {
-                modelRepository.findByModelAndFingerprint(modelName, fingerprint)
+                modelRepository.findByModelAndFingerprint(modelName, modelFingerprint)
                     .flatMap { existing ->
                         // exact fingerprint already exists — return as-is
                         Mono.just(existing.toModelResource(objectMapper))
@@ -102,8 +99,8 @@ class ModelService(
                             ModelEntity(
                                 source = event.source.toString(),
                                 model = modelName,
-                                jsonStructure = jsonStructure,
-                                fingerprint = fingerprint
+                                jsonStructure = modelStructure,
+                                fingerprint = modelFingerprint
                             ).withCreateInfo()
                         }
                             .flatMap { toInsert -> modelRepository.save(toInsert) }

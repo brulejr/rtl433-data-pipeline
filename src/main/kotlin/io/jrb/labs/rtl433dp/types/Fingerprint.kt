@@ -24,4 +24,8 @@
 
 package io.jrb.labs.rtl433dp.types
 
-data class Fingerprint(val fingerprint: String, val jsonStructure: String)
+data class Fingerprint(
+    val deviceFingerprint: String,
+    val modelFingerprint: String,
+    val modelStructure: String
+)

@@ -42,12 +42,12 @@ class FingerprintEventConsumer(
 
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataReceived) {
         val fingerprint = fingerprintService.fingerprint(event.data)
-        log.info("fingerprint = {}", fingerprint)
         eventBus.publish(PipelineEvent.Rtl433DataFingerprinted(
             source = event.source,
             data = event.data,
-            fingerprint = fingerprint.fingerprint,
-            jsonStructure = fingerprint.jsonStructure
+            deviceFingerprint = fingerprint.deviceFingerprint,
+            modelFingerprint = fingerprint.modelFingerprint,
+            modelStructure = fingerprint.modelStructure
         ))
     }
 

@@ -13,8 +13,9 @@ sealed class PipelineEvent : Event {
     data class Rtl433DataFingerprinted(
         val source: RawMessageSource,
         val data: Rtl433Data,
-        val fingerprint: String,
-        val jsonStructure: String
+        val deviceFingerprint: String,
+        val modelFingerprint: String,
+        val modelStructure: String
     ) : PipelineEvent()
 
 }

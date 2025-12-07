@@ -52,7 +52,7 @@ class IngestionService(
             source.connect()
             _subscriptions[source.name] = source.subscribe(source.topic) { message ->
                 val rtl433Data = objectMapper.readValue(message, Rtl433Data::class.java)
-                log.info("RTL433 data received: {}", rtl433Data)
+                log.info("Data -> model = {}, id = {}, rtl433Data='{}'", rtl433Data.model, rtl433Data.id, rtl433Data)
                 eventBus.send(
                     PipelineEvent.Rtl433DataReceived(
                     source = RawMessageSource.valueOf(source.name),
