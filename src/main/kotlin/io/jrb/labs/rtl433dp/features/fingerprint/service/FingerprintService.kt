@@ -29,28 +29,125 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.service.ControllableService
+import io.jrb.labs.rtl433dp.features.fingerprint.FingerprintDatafill
 import io.jrb.labs.rtl433dp.types.Fingerprint
 import io.jrb.labs.rtl433dp.types.Rtl433Data
+import org.slf4j.LoggerFactory
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 
 class FingerprintService(
+    private val datafill: FingerprintDatafill,
     private val objectMapper: ObjectMapper,
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
 
+    private val log = LoggerFactory.getLogger(FingerprintService::class.java)
+
     fun fingerprint(data: Rtl433Data): Fingerprint {
         val rawJson = objectMapper.writeValueAsString(data)
         val jsonTree = objectMapper.readTree(rawJson)
-        val jsonStructure = toJsonStructure(jsonTree)
+
+        val filteredTree =
+            if (datafill.enabled && datafill.excludedFields.isNotEmpty()) {
+                excludeByFieldName(jsonTree)
+            } else {
+                jsonTree
+            }
+
+        val jsonStructure = toJsonStructure(filteredTree)
         val rawJsonStructure = objectMapper.writeValueAsString(jsonStructure)
-        return Fingerprint(fingerprint(rawJsonStructure), rawJsonStructure)
+
+        return Fingerprint(
+            fingerprintHash(rawJsonStructure),
+            rawJsonStructure
+        )
     }
 
-    private fun fingerprint(input: String, algorithm: String = "SHA-256"): String {
-        val bytes = MessageDigest.getInstance(algorithm).digest(input.toByteArray(StandardCharsets.UTF_8))
+    private fun fingerprintHash(input: String, algorithm: String = "SHA-256"): String {
+        val bytes = MessageDigest.getInstance(algorithm)
+            .digest(input.toByteArray(StandardCharsets.UTF_8))
         return bytes.joinToString("") { "%02x".format(it) }
     }
+
+    /**
+     * Excludes any object field whose name matches excludedFields, anywhere in the JSON tree.
+     *
+     * - No hierarchy/path matching.
+     * - Name-only matching.
+     * - Parent objects are preserved even if they become empty
+     *   (structure will reflect that, which is usually fine for fingerprinting).
+     */
+    internal fun excludeByFieldName(root: JsonNode): JsonNode {
+        val excludes = datafill.excludedFields
+
+        val presentNames = collectAllFieldNames(root)
+        val appliedExcludes = excludes.intersect(presentNames)
+        val missingExcludes = excludes - presentNames
+
+        fun filterNode(node: JsonNode): JsonNode {
+            return when {
+                node.isObject -> {
+                    val out = objectMapper.createObjectNode()
+
+                    node.fieldNames().asSequence().forEach { fieldName ->
+                        if (fieldName in excludes) {
+                            // skip entirely
+                            return@forEach
+                        }
+                        val child = node[fieldName]
+                        out.set<JsonNode>(fieldName, filterNode(child))
+                    }
+
+                    out
+                }
+                node.isArray -> node
+                else -> node
+            }
+        }
+
+        val filtered = filterNode(root)
+
+        if (log.isDebugEnabled) {
+            log.debug(
+                "Fingerprint exclude-only summary: presentFieldNames={}, excludesRequested={}",
+                presentNames.size, excludes.size
+            )
+            log.debug(
+                "Fingerprint excludes: applied={}, missing={}",
+                appliedExcludes.sortedSafe(),
+                missingExcludes.sortedSafe()
+            )
+        }
+
+        return filtered
+    }
+
+    /**
+     * Collect all object field names at any depth.
+     */
+    internal fun collectAllFieldNames(root: JsonNode): Set<String> {
+        val names = linkedSetOf<String>()
+
+        fun walk(node: JsonNode) {
+            when {
+                node.isObject -> {
+                    node.fieldNames().forEachRemaining { name ->
+                        names += name
+                        walk(node[name])
+                    }
+                }
+                node.isArray -> node.forEach { walk(it) }
+                else -> { /* primitives */ }
+            }
+        }
+
+        walk(root)
+        return names
+    }
+
+    private fun Set<String>.sortedSafe(max: Int = 50): List<String> =
+        this.asSequence().sorted().take(max).toList()
 
     private fun toJsonStructure(node: JsonNode): JsonNode {
         return when {
@@ -61,10 +158,7 @@ class FingerprintService(
                 }
                 sortedNode
             }
-            node.isArray -> {
-                val arrayPlaceholder = JsonNodeFactory.instance.textNode("array") // Represents an array
-                arrayPlaceholder
-            }
+            node.isArray -> JsonNodeFactory.instance.textNode("array")
             node.isTextual -> JsonNodeFactory.instance.textNode("string")
             node.isNumber -> JsonNodeFactory.instance.textNode("number")
             node.isBoolean -> JsonNodeFactory.instance.textNode("boolean")

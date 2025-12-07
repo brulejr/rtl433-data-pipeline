@@ -24,3 +24,12 @@ management.info:
 
 logging.level:
   org.springframework: INFO
+
+application:
+  fingerprint:
+    enabled: true
+    excluded-fields:
+      - name
+      - type
+      - area
+      - time

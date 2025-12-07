@@ -28,5 +28,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "application.fingerprint")
 data class FingerprintDatafill(
-    val enabled: Boolean = true
+    val enabled: Boolean = true,
+    val excludedFields: Set<String> = emptySet()
 )
