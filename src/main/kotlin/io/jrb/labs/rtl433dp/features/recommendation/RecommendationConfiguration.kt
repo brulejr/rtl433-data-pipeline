@@ -26,6 +26,7 @@ package io.jrb.labs.rtl433dp.features.recommendation
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import io.jrb.labs.rtl433dp.features.recommendation.entity.BucketCount
 import io.jrb.labs.rtl433dp.features.recommendation.entity.Recommendation
 import io.jrb.labs.rtl433dp.features.recommendation.repository.KnownDeviceRepository
@@ -69,8 +70,12 @@ class RecommendationConfiguration(
     }
 
     @Bean
-    fun knownDeviceService(repository: KnownDeviceRepository) : KnownDeviceService {
-        return KnownDeviceService(repository)
+    fun knownDeviceService(
+        knownDeviceRepository: KnownDeviceRepository,
+        recommendationRepository: RecommendationRepository,
+        modelService: ModelService
+    ) : KnownDeviceService {
+        return KnownDeviceService(knownDeviceRepository, recommendationRepository, modelService)
     }
 
     @Bean

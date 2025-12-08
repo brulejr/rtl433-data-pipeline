@@ -34,6 +34,8 @@ import reactor.core.publisher.Mono
 @ConditionalOnProperty(prefix = "application.model", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 interface ModelRepository : EntityRepository<ModelEntity>, ModelRepositoryCustom {
 
+    fun findByFingerprint(fingerprint: String): Mono<ModelEntity>
+
     fun findByModelAndFingerprint(model: String, fingerprint: String): Mono<ModelEntity>
 
 }

@@ -24,13 +24,28 @@
 
 package io.jrb.labs.rtl433dp.features.recommendation.resource
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.validation.constraints.NotBlank
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class PromotionRequest(
-    val model: String,
-    val id: String,
+data class PromotionRequest @JsonCreator constructor (
+
+    @field:NotBlank(message="Device fingerprint name may not be blank")
+    @field:JsonProperty("deviceFingerprint")
+    val deviceFingerprint: String,
+
+    @field:NotBlank(message="Device name may not be blank")
+    @field:JsonProperty("name")
     val name: String,
+
+    @field:NotBlank(message="Device type may not be blank")
+    @field:JsonProperty("type")
     val type: String,
+
+    @field:NotBlank(message="Device name may not be blank")
+    @field:JsonProperty("area")
     val area: String
+
 )

@@ -47,13 +47,13 @@ data class KnownDevice(
     @Version val version: Int? = null
 ) {
 
-    constructor(fingerprint: String, request: PromotionRequest) : this(
-        model = request.model,
-        deviceId = request.id,
-        fingerprint = fingerprint,
-        name = request.name,
-        type = request.type,
-        area = request.area
+    constructor(promotionRequest: PromotionRequest, recommendation: Recommendation) : this(
+        model = recommendation.model,
+        deviceId = recommendation.deviceId,
+        fingerprint = recommendation.deviceFingerprint,
+        name = promotionRequest.name,
+        type = promotionRequest.type,
+        area = promotionRequest.area
     )
 
     fun toKnownDeviceResource(): KnownDeviceResource {

@@ -33,7 +33,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class SensorMappingRequest @JsonCreator constructor(
+data class SensorMappingRequest @JsonCreator constructor (
 
     @field:NotBlank(message="Sensor name may not be blank")
     @field:JsonProperty("name")

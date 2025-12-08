@@ -1,0 +1,25 @@
+meta {
+  name: Promote Recommendation
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{rtl433_data_pipeline_url}}/api/v1/recommendations/promote
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "deviceFingerprint": "d20e4848ab0066422935d028a8a0f6e3398671fcf58bb584ff59cb239611a9c2",
+    "name": "weather-lab",
+    "type": "weather",
+    "area": "lab"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

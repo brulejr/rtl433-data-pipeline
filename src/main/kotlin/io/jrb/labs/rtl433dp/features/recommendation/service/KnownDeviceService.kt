@@ -24,19 +24,29 @@
 package io.jrb.labs.rtl433dp.features.recommendation.service
 
 import io.jrb.labs.commons.service.CrudOutcome
+import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import io.jrb.labs.rtl433dp.features.recommendation.entity.KnownDevice
+import io.jrb.labs.rtl433dp.features.recommendation.entity.Recommendation
 import io.jrb.labs.rtl433dp.features.recommendation.repository.KnownDeviceRepository
+import io.jrb.labs.rtl433dp.features.recommendation.repository.RecommendationRepository
 import io.jrb.labs.rtl433dp.features.recommendation.resource.KnownDeviceResource
 import io.jrb.labs.rtl433dp.features.recommendation.resource.PromotionRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.slf4j.LoggerFactory
 
-class KnownDeviceService(private val repository: KnownDeviceRepository) {
+class KnownDeviceService(
+    private val knownDeviceRepository: KnownDeviceRepository,
+    private val recommendationRepository: RecommendationRepository,
+    private val modelService: ModelService
+) {
+
+    private val log = LoggerFactory.getLogger(KnownDeviceService::class.java)
 
     suspend fun findByFingerprint(fingerprint: String): CrudOutcome<KnownDeviceResource> {
         return try {
-            val resource = repository.findByFingerprint(fingerprint)
+            val resource = knownDeviceRepository.findByFingerprint(fingerprint)
                 .map { it.toKnownDeviceResource() }
                 .awaitFirst()
             if (resource == null) {
@@ -51,7 +61,7 @@ class KnownDeviceService(private val repository: KnownDeviceRepository) {
 
     suspend fun retrieveKnownDeviceResources(): CrudOutcome<List<KnownDeviceResource>> {
         return try {
-            val resources = repository.findAll()
+            val resources = knownDeviceRepository.findAll()
                 .map { it.toKnownDeviceResource() }
                 .collectList()
                 .awaitSingleOrNull() ?: emptyList()
@@ -61,11 +71,39 @@ class KnownDeviceService(private val repository: KnownDeviceRepository) {
         }
     }
 
-    suspend fun promoteRecommendation(fingerprint: String, promotionRequest: PromotionRequest): KnownDeviceResource {
-        val entity = KnownDevice(fingerprint, promotionRequest)
-        return repository.save(entity)
-            .map { it.toKnownDeviceResource() }
-            .awaitSingle()
+    suspend fun promoteRecommendation(promotionRequest: PromotionRequest): CrudOutcome<KnownDeviceResource> {
+        return try {
+            val deviceFingerprint = promotionRequest.deviceFingerprint
+            val knownDevice = findKnownDevice(deviceFingerprint)
+            if (knownDevice == null) {
+                val recommendation = findRecommendation(deviceFingerprint)
+                if (recommendation != null) {
+                    if (modelService.isModelRecognized(recommendation.modelFingerprint)) {
+                        val entity = KnownDevice(promotionRequest, recommendation)
+                        log.info("Known Device -> {}", entity)
+                        knownDeviceRepository.save(entity).awaitSingle().toKnownDeviceResource().let(
+                            { CrudOutcome.Success(it) }
+                        )
+                    } else {
+                        CrudOutcome.NotFound("Model is not recognized for device fingerprint: $deviceFingerprint")
+                    }
+                } else {
+                    CrudOutcome.NotFound("Recommendation not found for device fingerprint: $deviceFingerprint")
+                }
+            } else {
+                CrudOutcome.Conflict("Device already known for fingerprint: $deviceFingerprint")
+            }
+        } catch (e: Exception) {
+            CrudOutcome.Error("Failed to promote recommendation", e)
+        }
+    }
+
+    private suspend fun findKnownDevice(fingerprint: String): KnownDevice? {
+        return knownDeviceRepository.findByFingerprint(fingerprint).awaitSingleOrNull()
+    }
+
+    private suspend fun findRecommendation(fingerprint: String): Recommendation? {
+        return recommendationRepository.findByDeviceFingerprint(fingerprint).awaitSingleOrNull()
     }
 
 }

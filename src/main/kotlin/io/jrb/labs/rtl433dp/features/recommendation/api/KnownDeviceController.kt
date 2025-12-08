@@ -27,16 +27,10 @@ package io.jrb.labs.rtl433dp.features.recommendation.api
 import io.jrb.labs.commons.client.ResourceWrapper
 import io.jrb.labs.commons.service.CrudResponse.Companion.crudResponse
 import io.jrb.labs.rtl433dp.features.recommendation.resource.KnownDeviceResource
-import io.jrb.labs.rtl433dp.features.recommendation.resource.PromotionRequest
 import io.jrb.labs.rtl433dp.features.recommendation.service.KnownDeviceService
-import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -44,23 +38,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/known-devices")
 @ConditionalOnProperty(prefix = "application.recommendation", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class KnownDeviceController(
-    private val knownDeviceService: KnownDeviceService,
-    private val recommendationService: RecommendationService
+    private val knownDeviceService: KnownDeviceService
 ) {
-
-    @PostMapping("/promote/{deviceFingerprint}")
-    suspend fun promoteRecommendation(
-        @PathVariable deviceFingerprint: String,
-        @RequestBody promotionRequest: PromotionRequest
-    ): ResponseEntity<KnownDeviceResource> {
-        val recommendation = recommendationService.findByDeviceFingerprint(deviceFingerprint).awaitSingleOrNull()
-        if (recommendation != null) {
-            val promoted = knownDeviceService.promoteRecommendation(deviceFingerprint, promotionRequest)
-            return ResponseEntity.ok(promoted)
-        } else {
-            return ResponseEntity.notFound().build()
-        }
-    }
 
     @GetMapping
     suspend fun listAll(): ResponseEntity<ResourceWrapper<List<KnownDeviceResource>>> {

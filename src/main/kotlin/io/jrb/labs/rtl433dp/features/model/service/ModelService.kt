@@ -65,6 +65,19 @@ class ModelService(
         }
     }
 
+    suspend fun isModelRecognized(fingerprint: String): Boolean {
+        return try {
+            val model = modelRepository.findByFingerprint(fingerprint).awaitFirst()
+            if (model != null) {
+                model.sensors != null && model.sensors.isNotEmpty()
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     suspend fun searchModelResources(rtl433Search: Rtl433Search): CrudOutcome<List<ModelResource>> {
         return try {
             val resources = modelRepository.search(rtl433Search)
