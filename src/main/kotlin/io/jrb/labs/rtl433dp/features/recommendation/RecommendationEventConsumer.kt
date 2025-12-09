@@ -29,12 +29,14 @@ import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.features.recommendation.service.BucketingService
+import io.jrb.labs.rtl433dp.features.recommendation.service.KnownDeviceService
 import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
 
 class RecommendationEventConsumer(
     private val bucketingService: BucketingService,
     private val recommendationService: RecommendationService,
-    eventBus: PipelineEventBus,
+    private val knownDeviceService: KnownDeviceService,
+    private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
 ) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataFingerprinted>(
     kClass = PipelineEvent.Rtl433DataFingerprinted::class,
@@ -47,16 +49,28 @@ class RecommendationEventConsumer(
         val deviceId = payload.id
         val propertiesSample = payload.getProperties()
 
-        val bucketCount = bucketingService.registerObservation(event)
+        // skip over known devices
+        if (knownDeviceService.isKnownDevice(event.deviceFingerprint)) {
+            eventBus.publish(PipelineEvent.KnownDevice(
+                source = event.source,
+                data = event.data,
+                deviceFingerprint = event.deviceFingerprint,
+                modelFingerprint = event.modelFingerprint
+            ))
+        }
 
-        recommendationService.maybeCreateRecommendation(
-            deviceId = deviceId,
-            model = payload.model,
-            deviceFingerprint = event.deviceFingerprint,
-            modelFingerprint = event.modelFingerprint,
-            bucketCount = bucketCount,
-            propertiesSample = propertiesSample
-        )
+        // handle unknown devices
+        else {
+            val bucketCount = bucketingService.registerObservation(event)
+            recommendationService.maybeCreateRecommendation(
+                deviceId = deviceId,
+                model = payload.model,
+                deviceFingerprint = event.deviceFingerprint,
+                modelFingerprint = event.modelFingerprint,
+                bucketCount = bucketCount,
+                propertiesSample = propertiesSample
+            )
+        }
     }
 
 }

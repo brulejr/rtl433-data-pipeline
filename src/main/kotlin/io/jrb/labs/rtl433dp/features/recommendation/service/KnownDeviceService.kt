@@ -59,6 +59,13 @@ class KnownDeviceService(
         }
     }
 
+    suspend fun isKnownDevice(deviceFingerprint: String): Boolean {
+        return when (val outcome = findByFingerprint(deviceFingerprint)) {
+            is CrudOutcome.Success -> true
+            else -> { false }
+        }
+    }
+
     suspend fun retrieveKnownDeviceResources(): CrudOutcome<List<KnownDeviceResource>> {
         return try {
             val resources = knownDeviceRepository.findAll()

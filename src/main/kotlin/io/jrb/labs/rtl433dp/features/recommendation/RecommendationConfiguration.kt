@@ -55,10 +55,11 @@ class RecommendationConfiguration(
     fun recommendationPipelineEventConsumer(
         bucketingService: BucketingService,
         recommendationService: RecommendationService,
+        knownDeviceService: KnownDeviceService,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
     ) : RecommendationEventConsumer {
-        return RecommendationEventConsumer(bucketingService, recommendationService, eventBus, systemEventBus)
+        return RecommendationEventConsumer(bucketingService, recommendationService, knownDeviceService, eventBus, systemEventBus)
     }
 
     @Bean
