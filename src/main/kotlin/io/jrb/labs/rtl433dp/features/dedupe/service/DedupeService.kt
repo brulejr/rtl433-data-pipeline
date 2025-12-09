@@ -22,26 +22,39 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model
+package io.jrb.labs.rtl433dp.features.dedupe.service
 
-import io.jrb.labs.commons.eventbus.SystemEventBus
-import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
+import io.github.reactivecircus.cache4k.Cache
 import io.jrb.labs.rtl433dp.events.PipelineEvent
-import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.model.service.ModelService
+import io.jrb.labs.rtl433dp.features.dedupe.DedupeDatafill
+import org.slf4j.LoggerFactory
+import kotlin.time.Duration.Companion.milliseconds
 
-class ModelEventConsumer(
-    private val modelService: ModelService,
-    eventBus: PipelineEventBus,
-    systemEventBus: SystemEventBus
-) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataDeduped>(
-    kClass = PipelineEvent.Rtl433DataDeduped::class,
-    eventBus = eventBus,
-    systemEventBus = systemEventBus
-) {
+class DedupeService(datafill: DedupeDatafill) {
 
-    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataDeduped) {
-        modelService.processEvent(event)
+    private val log = LoggerFactory.getLogger(DedupeService::class.java)
+
+    private val cache = Cache.Builder<String, String>()
+        .expireAfterWrite(datafill.dedupeWindowInMilliseconds.milliseconds)
+        .build()
+
+    fun isUniqueEvent(event: PipelineEvent.Rtl433DataFingerprinted): Boolean {
+        val deviceKey = event.deviceFingerprint
+        val signature = event.eventFingerprint
+
+        val previous = cache.get(deviceKey)
+        val unique = if (previous != null && previous == signature) {
+            false
+        } else {
+            cache.put(deviceKey, signature)
+            true
+        }
+
+        log.info("Dedupe -> model = {}, id = {}, unique={}, deviceKey='{}', signature='{}'",
+            event.data.model, event.data.id, unique, deviceKey, signature
+        )
+
+        return unique
     }
 
 }

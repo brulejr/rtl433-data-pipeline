@@ -22,26 +22,29 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model
+package io.jrb.labs.rtl433dp.features.dedupe
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
-import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
-import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.model.service.ModelService
+import io.jrb.labs.rtl433dp.features.dedupe.service.DedupeService
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
-class ModelEventConsumer(
-    private val modelService: ModelService,
-    eventBus: PipelineEventBus,
-    systemEventBus: SystemEventBus
-) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataDeduped>(
-    kClass = PipelineEvent.Rtl433DataDeduped::class,
-    eventBus = eventBus,
-    systemEventBus = systemEventBus
-) {
+@Configuration
+@ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.dedupe"])
+@ConditionalOnProperty(prefix = "application.dedupe", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+class DedupeConfiguration {
 
-    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataDeduped) {
-        modelService.processEvent(event)
-    }
+    @Bean
+    fun dedupeEventConsumer(
+        dedupeService: DedupeService,
+        eventBus: PipelineEventBus,
+        systemEventBus: SystemEventBus
+    ) = DedupeEventConsumer(dedupeService, eventBus, systemEventBus)
+
+    @Bean
+    fun dedupeService(datafill: DedupeDatafill) = DedupeService(datafill)
 
 }

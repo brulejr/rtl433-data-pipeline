@@ -38,13 +38,13 @@ class RecommendationEventConsumer(
     private val knownDeviceService: KnownDeviceService,
     private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
-) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataFingerprinted>(
-    kClass = PipelineEvent.Rtl433DataFingerprinted::class,
+) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataDeduped>(
+    kClass = PipelineEvent.Rtl433DataDeduped::class,
     eventBus = eventBus,
     systemEventBus = systemEventBus
 ) {
 
-    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataFingerprinted) {
+    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataDeduped) {
         val payload = event.data
         val deviceId = payload.id
         val propertiesSample = payload.getProperties()

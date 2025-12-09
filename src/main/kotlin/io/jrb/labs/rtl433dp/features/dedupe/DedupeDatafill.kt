@@ -22,26 +22,12 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model
+package io.jrb.labs.rtl433dp.features.dedupe
 
-import io.jrb.labs.commons.eventbus.SystemEventBus
-import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
-import io.jrb.labs.rtl433dp.events.PipelineEvent
-import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.model.service.ModelService
+import org.springframework.boot.context.properties.ConfigurationProperties
 
-class ModelEventConsumer(
-    private val modelService: ModelService,
-    eventBus: PipelineEventBus,
-    systemEventBus: SystemEventBus
-) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataDeduped>(
-    kClass = PipelineEvent.Rtl433DataDeduped::class,
-    eventBus = eventBus,
-    systemEventBus = systemEventBus
-) {
-
-    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataDeduped) {
-        modelService.processEvent(event)
-    }
-
-}
+@ConfigurationProperties(prefix = "application.dedupe")
+data class DedupeDatafill(
+    val enabled: Boolean = true,
+    val dedupeWindowInMilliseconds: Long = 1000
+)

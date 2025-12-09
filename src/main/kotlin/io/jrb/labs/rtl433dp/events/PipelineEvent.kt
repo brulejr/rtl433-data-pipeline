@@ -13,6 +13,15 @@ sealed class PipelineEvent : Event {
     data class Rtl433DataFingerprinted(
         val source: RawMessageSource,
         val data: Rtl433Data,
+        val eventFingerprint: String,
+        val deviceFingerprint: String,
+        val modelFingerprint: String,
+        val modelStructure: String
+    ) : PipelineEvent()
+
+    data class Rtl433DataDeduped(
+        val source: RawMessageSource,
+        val data: Rtl433Data,
         val deviceFingerprint: String,
         val modelFingerprint: String,
         val modelStructure: String

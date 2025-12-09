@@ -22,26 +22,34 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model
+package io.jrb.labs.rtl433dp.features.dedupe
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.model.service.ModelService
+import io.jrb.labs.rtl433dp.features.dedupe.service.DedupeService
 
-class ModelEventConsumer(
-    private val modelService: ModelService,
-    eventBus: PipelineEventBus,
+class DedupeEventConsumer(
+    private val dedupeService: DedupeService,
+    private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
-) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataDeduped>(
-    kClass = PipelineEvent.Rtl433DataDeduped::class,
+) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataFingerprinted>(
+    kClass = PipelineEvent.Rtl433DataFingerprinted::class,
     eventBus = eventBus,
     systemEventBus = systemEventBus
 ) {
 
-    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataDeduped) {
-        modelService.processEvent(event)
+    override suspend fun handleEvent(event: PipelineEvent.Rtl433DataFingerprinted) {
+        if (dedupeService.isUniqueEvent(event)) {
+            eventBus.publish(PipelineEvent.Rtl433DataDeduped(
+                source = event.source,
+                data = event.data,
+                deviceFingerprint = event.deviceFingerprint,
+                modelFingerprint = event.modelFingerprint,
+                modelStructure = event.modelStructure
+            ))
+        }
     }
 
 }

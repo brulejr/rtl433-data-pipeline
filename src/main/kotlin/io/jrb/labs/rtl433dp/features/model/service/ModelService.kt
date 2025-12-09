@@ -73,7 +73,7 @@ class ModelService(
             } else {
                 false
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -90,7 +90,7 @@ class ModelService(
         }
     }
 
-    suspend fun processEvent(event: PipelineEvent.Rtl433DataFingerprinted): ModelResource {
+    suspend fun processEvent(event: PipelineEvent.Rtl433DataDeduped): ModelResource {
         val modelName = event.data.model
         val modelFingerprint = event.modelFingerprint
         val modelStructure = event.modelStructure

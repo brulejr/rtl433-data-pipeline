@@ -53,7 +53,7 @@ class BucketingService(
      * Register a single observation. Returns the new bucket count (after increment).
      * Uses in-memory cache to suppress frequent DB writes for the same fingerprint within TTL.
      */
-    suspend fun registerObservation(event: PipelineEvent.Rtl433DataFingerprinted): Long {
+    suspend fun registerObservation(event: PipelineEvent.Rtl433DataDeduped): Long {
         val data = event.data
         val deviceFingerprint = event.deviceFingerprint
 

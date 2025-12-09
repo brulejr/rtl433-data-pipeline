@@ -45,6 +45,7 @@ class FingerprintEventConsumer(
         eventBus.publish(PipelineEvent.Rtl433DataFingerprinted(
             source = event.source,
             data = event.data,
+            eventFingerprint = fingerprint.eventFingerprint,
             deviceFingerprint = fingerprint.deviceFingerprint,
             modelFingerprint = fingerprint.modelFingerprint,
             modelStructure = fingerprint.modelStructure

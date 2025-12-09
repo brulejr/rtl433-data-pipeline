@@ -45,15 +45,22 @@ class FingerprintService(
     private val log = LoggerFactory.getLogger(FingerprintService::class.java)
 
     fun fingerprint(data: Rtl433Data): Fingerprint {
+        val rawJson = objectMapper.writeValueAsString(data)
+        val eventFingerprint = fingerprintHash(rawJson)
         val deviceFingerprint = deviceFingerprint(data)
-        val modelStructure = modelStructure(data)
+        val modelStructure = modelStructure(rawJson)
         val modelFingerprint = fingerprintHash(modelStructure)
 
-        log.info("Fingerprint -> model = {}, id = {}, deviceFingerprint='{}', modelFingerprint='{}', modelStructure='{}'",
-            data.model, data.id, deviceFingerprint, modelFingerprint, modelStructure
+        log.info("Fingerprint -> model = {}, id = {}, eventFingerprint={}, deviceFingerprint='{}', modelFingerprint='{}', modelStructure='{}'",
+            data.model, data.id, eventFingerprint, deviceFingerprint, modelFingerprint, modelStructure
         )
 
-        return Fingerprint(deviceFingerprint, modelFingerprint, modelStructure)
+        return Fingerprint(
+            eventFingerprint,
+            deviceFingerprint,
+            modelFingerprint,
+            modelStructure
+        )
     }
 
     private fun deviceFingerprint(data: Rtl433Data): String {
@@ -71,8 +78,7 @@ class FingerprintService(
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    private fun modelStructure(data: Rtl433Data): String {
-        val rawJson = objectMapper.writeValueAsString(data)
+    private fun modelStructure(rawJson: String): String {
         val jsonTree = objectMapper.readTree(rawJson)
 
         val filteredTree =
