@@ -29,10 +29,10 @@ import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonProperty
 
 data class SensorMapping @BsonCreator constructor(
-    @BsonProperty("name") val name: String,
-    @BsonProperty("type") val type: SensorType,
-    @BsonProperty("classname") val classname: String,
-    @BsonProperty("friendlyName") val friendlyName: String? = null
+    @field:BsonProperty("name") val name: String,
+    @field:BsonProperty("type") val type: SensorType,
+    @field:BsonProperty("classname") val classname: String,
+    @field:BsonProperty("friendlyName") val friendlyName: String? = null
 ) {
 
     fun toSensorMappingResource(): SensorMappingResource {
