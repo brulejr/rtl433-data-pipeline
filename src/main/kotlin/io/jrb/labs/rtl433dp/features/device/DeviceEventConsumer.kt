@@ -41,7 +41,16 @@ class DeviceEventConsumer(
 ) {
 
     override suspend fun handleEvent(event: PipelineEvent.KnownDevice) {
-        deviceService.processEvent(event)
+        val messages = deviceService.processEvent(event)
+        if (messages.isNotEmpty()) {
+            eventBus.publish(PipelineEvent.PublishingContent(
+                source = event.source,
+                data = event.data,
+                deviceFingerprint = event.deviceFingerprint,
+                modelFingerprint = event.modelFingerprint,
+                messages = messages
+            ))
+        }
     }
 
 }

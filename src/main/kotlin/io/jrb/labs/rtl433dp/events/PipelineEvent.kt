@@ -34,4 +34,12 @@ sealed class PipelineEvent : Event {
         val modelFingerprint: String
     ) : PipelineEvent()
 
+    data class PublishingContent(
+        val source: RawMessageSource,
+        val data: Rtl433Data,
+        val deviceFingerprint: String,
+        val modelFingerprint: String,
+        val messages: Map<String, String>
+    ) : PipelineEvent()
+
 }

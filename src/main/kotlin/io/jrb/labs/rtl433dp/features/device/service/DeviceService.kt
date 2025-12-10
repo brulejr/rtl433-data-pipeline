@@ -53,18 +53,21 @@ class DeviceService(
 
     private val log = LoggerFactory.getLogger(DeviceService::class.java)
 
-    suspend fun processEvent(event: PipelineEvent.KnownDevice) {
+    suspend fun processEvent(event: PipelineEvent.KnownDevice): Map<String, String> {
         val modelName = event.data.model
         val modelFingerprint = event.modelFingerprint
         when (val model = modelService.findModelResource(modelName, modelFingerprint)) {
             is CrudOutcome.Success -> {
                 val sensors = model.data.sensors ?: emptyList()
                 val deviceDiscovery = toHomeAssistantDeviceDiscovery(event.data, sensors)
-                log.info("Device -> deviceDiscovery = {}", deviceDiscovery)
                 val deviceData = toHomeAssistantSensor(event.data, sensors)
-                log.info("Device -> deviceData = {}", deviceData)
+                log.info("Device -> deviceData = {}, deviceDiscovery = {}", deviceData, deviceDiscovery)
+                return mapOf(deviceDiscovery, deviceData)
             }
-            else -> { }
+            else -> {
+                log.error("Failed to find model '{}' for known device fingerprint: {}", modelName, event.deviceFingerprint)
+                return emptyMap()
+            }
         }
     }
 
