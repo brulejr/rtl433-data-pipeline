@@ -21,27 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433dp.features.model.entity
 
-import io.jrb.labs.rtl433dp.resources.SensorMappingResource
-import io.jrb.labs.rtl433dp.types.SensorType
-import org.bson.codecs.pojo.annotations.BsonCreator
-import org.bson.codecs.pojo.annotations.BsonProperty
+package io.jrb.labs.rtl433dp.features.device.entity
 
-data class SensorMapping @BsonCreator constructor(
-    @BsonProperty("name") val name: String,
-    @BsonProperty("type") val type: SensorType,
-    @BsonProperty("classname") val classname: String,
-    @BsonProperty("friendlyName") val friendlyName: String? = null
-) {
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
-    fun toSensorMappingResource(): SensorMappingResource {
-        return SensorMappingResource(
-            name = name,
-            type = type,
-            classname = classname,
-            friendlyName = friendlyName
-        )
-    }
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class AvailabilityInfo(
 
-}
+    @field:JsonProperty("payload_available")
+    val payloadAvailable: String? = null,
+
+    @field:JsonProperty("payload_not_available")
+    val payloadNotAvailable: String? = null,
+
+    val topic: String,
+
+    @field:JsonProperty("value_template")
+    val valueTemplate: String? = null
+
+)

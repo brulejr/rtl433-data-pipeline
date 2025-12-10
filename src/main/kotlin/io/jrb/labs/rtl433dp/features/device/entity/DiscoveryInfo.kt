@@ -22,26 +22,19 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.model.resource
+package io.jrb.labs.rtl433dp.features.device.entity
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonView
-import io.jrb.labs.commons.client.ResourceViews
-import io.jrb.labs.rtl433dp.types.SensorType
+import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class SensorMappingResource(
-
-    @field:JsonView(ResourceViews.Details::class)
-    val name: String,
-
-    @field:JsonView(ResourceViews.Details::class)
-    val type: SensorType,
-
-    @field:JsonView(ResourceViews.Details::class)
-    val classname: String,
-
-    @field:JsonView(ResourceViews.Details::class)
-    val friendlyName: String? = null
-
+data class DiscoveryInfo(
+    val device: DeviceInfo,
+    val origin: OriginInfo,
+    val availability: AvailabilityInfo? = null,
+    @field:JsonProperty("command_topic") val commandTopic: String? = null,
+    @field:JsonProperty("state_topic") val stateTopic: String,
+    val qos: Int = 1,
+    val encoding: String? = null,
+    val components: Map<String, ComponentInfo>
 )

@@ -24,8 +24,11 @@
 
 package io.jrb.labs.rtl433dp.features.device
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.device.service.DeviceService
+import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Bean
@@ -38,8 +41,18 @@ class DeviceConfiguration {
 
     @Bean
     fun deviceEventConsumer(
+        deviceService: DeviceService,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) = DeviceEventConsumer(eventBus, systemEventBus)
+    ) = DeviceEventConsumer(deviceService, eventBus, systemEventBus)
+
+    @Bean
+    fun deviceService(
+        datafill: DeviceDatafill,
+        objectMapper: ObjectMapper,
+        modelService: ModelService,
+        eventBus: PipelineEventBus,
+        systemEventBus: SystemEventBus
+    ) = DeviceService(datafill, objectMapper, modelService, eventBus, systemEventBus)
 
 }

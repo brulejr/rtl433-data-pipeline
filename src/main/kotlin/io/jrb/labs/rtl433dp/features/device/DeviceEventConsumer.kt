@@ -28,9 +28,11 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.device.service.DeviceService
 
 class DeviceEventConsumer(
-    eventBus: PipelineEventBus,
+    private val deviceService: DeviceService,
+    private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
 ) : AbstractPipelineEventConsumer<PipelineEvent.KnownDevice>(
     kClass = PipelineEvent.KnownDevice::class,
@@ -39,7 +41,7 @@ class DeviceEventConsumer(
 ) {
 
     override suspend fun handleEvent(event: PipelineEvent.KnownDevice) {
-        log.info("Device -> {}", event)
+        deviceService.processEvent(event)
     }
 
 }

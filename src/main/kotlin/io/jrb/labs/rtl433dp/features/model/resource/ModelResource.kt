@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonView
 import com.fasterxml.jackson.databind.JsonNode
 import io.jrb.labs.commons.client.ResourceViews
+import io.jrb.labs.rtl433dp.resources.SensorMappingResource
 import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

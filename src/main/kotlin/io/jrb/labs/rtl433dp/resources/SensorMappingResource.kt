@@ -21,27 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433dp.features.model.entity
 
-import io.jrb.labs.rtl433dp.resources.SensorMappingResource
+package io.jrb.labs.rtl433dp.resources
+
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonView
+import io.jrb.labs.commons.client.ResourceViews
 import io.jrb.labs.rtl433dp.types.SensorType
-import org.bson.codecs.pojo.annotations.BsonCreator
-import org.bson.codecs.pojo.annotations.BsonProperty
 
-data class SensorMapping @BsonCreator constructor(
-    @BsonProperty("name") val name: String,
-    @BsonProperty("type") val type: SensorType,
-    @BsonProperty("classname") val classname: String,
-    @BsonProperty("friendlyName") val friendlyName: String? = null
-) {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class SensorMappingResource(
 
-    fun toSensorMappingResource(): SensorMappingResource {
-        return SensorMappingResource(
-            name = name,
-            type = type,
-            classname = classname,
-            friendlyName = friendlyName
-        )
-    }
+    @field:JsonView(ResourceViews.Details::class)
+    val name: String,
 
-}
+    @field:JsonView(ResourceViews.Details::class)
+    val type: SensorType,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val classname: String,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val friendlyName: String? = null
+
+)

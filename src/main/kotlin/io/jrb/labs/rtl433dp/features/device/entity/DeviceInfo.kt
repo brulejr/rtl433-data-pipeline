@@ -21,27 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433dp.features.model.entity
 
-import io.jrb.labs.rtl433dp.resources.SensorMappingResource
-import io.jrb.labs.rtl433dp.types.SensorType
-import org.bson.codecs.pojo.annotations.BsonCreator
-import org.bson.codecs.pojo.annotations.BsonProperty
+package io.jrb.labs.rtl433dp.features.device.entity
 
-data class SensorMapping @BsonCreator constructor(
-    @BsonProperty("name") val name: String,
-    @BsonProperty("type") val type: SensorType,
-    @BsonProperty("classname") val classname: String,
-    @BsonProperty("friendlyName") val friendlyName: String? = null
-) {
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
-    fun toSensorMappingResource(): SensorMappingResource {
-        return SensorMappingResource(
-            name = name,
-            type = type,
-            classname = classname,
-            friendlyName = friendlyName
-        )
-    }
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class DeviceInfo(
 
-}
+    @field:JsonProperty("configuration_url")
+    val configurationUrl: String? = null,
+
+    val connections: List<Pair<String, String>>? = null,
+
+    @field:JsonProperty("hw_version")
+    val hwVersion: String? = null,
+
+    val identifiers: List<String>? = null,
+
+    val manufacturer: String? = null,
+
+    val model: String? = null,
+
+    @field:JsonProperty("model_id")
+    val modelId: String? = null,
+
+    val name: String? = null,
+
+    @field:JsonProperty("serial_number")
+    val serialNumber: String? = null,
+
+    @field:JsonProperty("suggested_area")
+    val suggestedArea: String? = null,
+
+    @field:JsonProperty("sw_version")
+    val swVersion: String? = null,
+
+    @field:JsonProperty("via_device")
+    val viaDevice: String? = null
+
+)
