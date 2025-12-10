@@ -26,6 +26,7 @@ package io.jrb.labs.rtl433dp.features.device.entity
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.jrb.labs.rtl433dp.types.Rtl433Data
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class DeviceInfo(
@@ -61,4 +62,17 @@ data class DeviceInfo(
     @field:JsonProperty("via_device")
     val viaDevice: String? = null
 
-)
+) {
+    companion object {
+        fun deviceInfo(rtl433Data: Rtl433Data): DeviceInfo {
+            return DeviceInfo(
+                identifiers = listOf(rtl433Data.id),
+                name = "rtl433-${rtl433Data.name}",
+                manufacturer = rtl433Data.model,
+                model = rtl433Data.type,
+                serialNumber = rtl433Data.id,
+                suggestedArea = rtl433Data.area
+            )
+        }
+    }
+}

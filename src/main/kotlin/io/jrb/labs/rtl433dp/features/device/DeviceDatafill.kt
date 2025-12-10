@@ -28,5 +28,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "application.device")
 data class DeviceDatafill(
-    val enabled: Boolean = true
+    val enabled: Boolean = true,
+    val configTopic: String = "homeassistant/device/%s/config",
+    val stateTopic: String = "rtl433/%s/state"
 )

@@ -29,13 +29,13 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.service.ControllableService
 import io.jrb.labs.commons.service.CrudOutcome
 import io.jrb.labs.rtl433dp.events.PipelineEvent
-import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.features.device.DeviceDatafill
 import io.jrb.labs.rtl433dp.features.device.entity.BinarySensorInfo
 import io.jrb.labs.rtl433dp.features.device.entity.ComponentInfo
 import io.jrb.labs.rtl433dp.features.device.entity.DeviceInfo
+import io.jrb.labs.rtl433dp.features.device.entity.DeviceInfo.Companion.deviceInfo
 import io.jrb.labs.rtl433dp.features.device.entity.DiscoveryInfo
-import io.jrb.labs.rtl433dp.features.device.entity.OriginInfo
+import io.jrb.labs.rtl433dp.features.device.entity.OriginInfo.Companion.originInfo
 import io.jrb.labs.rtl433dp.features.device.entity.SensorInfo
 import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import io.jrb.labs.rtl433dp.resources.SensorMappingResource
@@ -48,7 +48,6 @@ class DeviceService(
     private val datafill: DeviceDatafill,
     private val objectMapper: ObjectMapper,
     private val modelService: ModelService,
-    private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
 
@@ -98,11 +97,11 @@ class DeviceService(
 
 
     private fun configTopic(device: DeviceInfo): String {
-        return "homeassistant/device/${device.name}/config"
+        return datafill.configTopic.format(device.name)
     }
 
     private fun stateTopic(device: DeviceInfo): String {
-        return "rtl433/${device.name}/state"
+        return datafill.stateTopic.format(device.name)
     }
 
     private fun findSensor(key: String, sensors: List<SensorMappingResource>): SensorMappingResource {
@@ -126,17 +125,6 @@ class DeviceService(
         }
     }
 
-    private fun deviceInfo(rtl433Data: Rtl433Data): DeviceInfo {
-        return DeviceInfo(
-            identifiers = listOf(rtl433Data.id),
-            name = "rtl433-${rtl433Data.name}",
-            manufacturer = rtl433Data.model,
-            model = rtl433Data.type,
-            serialNumber = rtl433Data.id,
-            suggestedArea = rtl433Data.area
-        )
-    }
-
     private fun inferUnit(key: String): String? {
         return when {
             key.contains("temperature", ignoreCase = true) -> "°C"
@@ -145,12 +133,6 @@ class DeviceService(
             key.contains("pressure", ignoreCase = true) -> "hPa"
             else -> null
         }
-    }
-
-    private fun originInfo(): OriginInfo {
-        return OriginInfo(
-            name = "rtl433"
-        )
     }
 
     private fun componentInfo(

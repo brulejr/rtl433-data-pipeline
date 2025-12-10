@@ -51,8 +51,7 @@ class DeviceConfiguration {
         datafill: DeviceDatafill,
         objectMapper: ObjectMapper,
         modelService: ModelService,
-        eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) = DeviceService(datafill, objectMapper, modelService, eventBus, systemEventBus)
+    ) = DeviceService(datafill, objectMapper, modelService, systemEventBus)
 
 }

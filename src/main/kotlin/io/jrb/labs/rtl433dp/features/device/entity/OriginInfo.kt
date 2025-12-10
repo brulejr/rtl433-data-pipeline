@@ -32,4 +32,14 @@ data class OriginInfo(
     val name: String,
     @field:JsonProperty("sw_version") val swVersion: String? = null,
     @field:JsonProperty("support_url") val supportUrl: String? = null
-)
+) {
+    companion object {
+
+        fun originInfo(): OriginInfo {
+            return OriginInfo(
+                name = "rtl433"
+            )
+        }
+
+    }
+}
