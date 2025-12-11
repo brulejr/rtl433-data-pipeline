@@ -25,6 +25,18 @@ management.info:
 logging.level:
   org.springframework: INFO
 
+spring.data.mongodb:
+  uri: ${MONGODB_URL}
+
+application.ingestion:
+  enabled: true
+  mqtt:
+    - name: RTL433
+      host: ${MQTT_RTL433_HOST}
+      port: ${MQTT_RTL433_PORT:1883}
+      clientId: rtl433-client-${random.uuid}
+      topic: ${MQTT_RTL433_TOPIC:rtl_433/c568f8b433e2/events}
+
 application.fingerprint:
     enabled: true
     excluded-fields:
@@ -32,3 +44,22 @@ application.fingerprint:
       - type
       - area
       - time
+
+application.model:
+  enabled: true
+
+application.recommendation:
+  enabled: true
+  bucket-duration-minutes: 30
+  bucket-count-threshold: 10
+
+application.device:
+  enabled: true
+
+application.publishing:
+  enabled: true
+  mqtt:
+    - name: HOME_ASSISTANT
+      host: ${MQTT_AUTOHOME_HOST}
+      port: ${MQTT_AUTOHOME_PORT:1883}
+      clientId: ha-client-${random.uuid}

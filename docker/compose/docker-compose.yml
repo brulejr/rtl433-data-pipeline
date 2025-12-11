@@ -1,0 +1,70 @@
+services:
+
+  rtl433-data-pipeline:
+
+    image: brulejr/rtl433-data-pipeline:latest   # built by Jib
+    container_name: rtl433-data-pipeline
+    restart: unless-stopped
+
+    environment:
+
+      # Spring profile
+      SPRING_PROFILES_ACTIVE: "prod"
+
+      # MongoDB connection info
+      MONGODB_URL_FILE: "/run/secrets/mongodb_url"
+
+      # MQTT/RTL433 source connection info
+      MQTT_RTL433_HOST_FILE: "/run/secrets/mqtt_rtl433_host"
+      MQTT_RTL433_PORT_FILE: "/run/secrets/mqtt_rtl433_port"
+      MQTT_RTL433_USERNAME_FILE: "/run/secrets/mqtt_rtl433_username"
+      MQTT_RTL433_PASSWORD_FILE: "/run/secrets/mqtt_rtl433_password"
+      MQTT_RTL433_TOPIC_FILE: "/run/secrets/mqtt_rtl433_topic"
+
+      # MQTT/AUTOHOME target connection info
+      MQTT_AUTOHOME_HOST_FILE: "/run/secrets/mqtt_autohome_host"
+      MQTT_AUTOHOME_PORT_FILE: "/run/secrets/mqtt_autohome_port"
+      MQTT_AUTOHOME_USERNAME_FILE: "/run/secrets/mqtt_autohome_username"
+      MQTT_AUTOHOME_PASSWORD_FILE: "/run/secrets/mqtt_autohome_password"
+
+      # Optional JVM tuning
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+
+    # Map Docker secrets into /run/secrets
+    secrets:
+      - mongodb_url
+      - mqtt_rtl433_host
+      - mqtt_rtl433_port
+      - mqtt_rtl433_username
+      - mqtt_rtl433_password
+      - mqtt_rtl433_topic
+      - mqtt_autohome_host
+      - mqtt_autohome_port
+      - mqtt_autohome_username
+      - mqtt_autohome_password
+
+    # Adjust networking to match your broker / HA environment
+    networks:
+      - default
+
+secrets:
+  mongodb_url:
+    file: ../secrets/mongodb_url.txt
+  mqtt_rtl433_host:
+    file: ../secrets/mqtt_rtl433_host.txt
+  mqtt_rtl433_port:
+    file: ../secrets/mqtt_rtl433_port.txt
+  mqtt_rtl433_username:
+    file: ../secrets/mqtt_rtl433_username.txt
+  mqtt_rtl433_password:
+    file: ../secrets/mqtt_rtl433_password.txt
+  mqtt_rtl433_topic:
+    file: ../secrets/mqtt_rtl433_topic.txt
+  mqtt_autohome_host:
+    file: ../secrets/mqtt_autohome_host.txt
+  mqtt_autohome_port:
+    file: ../secrets/mqtt_autohome_port.txt
+  mqtt_autohome_username:
+    file: ../secrets/mqtt_autohome_username.txt
+  mqtt_autohome_password:
+    file: ../secrets/mqtt_autohome_password.txt

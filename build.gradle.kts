@@ -58,3 +58,40 @@ kotlin {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+jib {
+    from {
+        image = "eclipse-temurin:21-jre-jammy"
+    }
+
+    to {
+        image = "brulejr/rtl433-data-pipeline:${project.version}"
+        tags = setOf("latest")
+    }
+
+    container {
+        user = "1000:1000"
+        ports = listOf("5001")
+
+        environment = mapOf(
+            "APP_MAIN_CLASS" to "io.jrb.labs.rtl433dp.Rtl433DataPipelineApplicationKt"
+        )
+
+        entrypoint = listOf("/bin/bash", "/opt/docker/entrypoint.sh")
+    }
+
+    extraDirectories {
+        paths {
+            path {
+                // ⬇⬇ THIS is the key: use setFrom(...) instead of from = ...
+                setFrom(file("docker/jib"))
+                into = "/opt/docker"
+
+                // permissions is a MapProperty<String, String> in newer Jib
+                permissions.set(
+                    mapOf("/opt/docker/entrypoint.sh" to "755")
+                )
+            }
+        }
+    }
+}

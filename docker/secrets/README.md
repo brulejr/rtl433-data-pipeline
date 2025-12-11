@@ -1,0 +1,1 @@
+Add secrets here in this directory. See `docker-compose.yml` for details.
