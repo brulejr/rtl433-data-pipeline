@@ -32,10 +32,6 @@ fi
 echo "[entrypoint] using APP_MAIN_CLASS=$APP_MAIN_CLASS"
 echo "[entrypoint] executing application..."
 
-find /app -type f
-echo exec java ${JAVA_OPTS} \
-  -cp "/app/resources:/app/classes:/app/libs/*" \
-  "$APP_MAIN_CLASS"
 exec java ${JAVA_OPTS} \
   -cp "/app/resources:/app/classes:/app/libs/*" \
   "$APP_MAIN_CLASS"
