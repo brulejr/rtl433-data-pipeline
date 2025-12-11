@@ -22,33 +22,12 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.publishing.data.mqtt
+package io.jrb.labs.commons.mqtt
 
-import io.jrb.labs.commons.mqtt.HiveMqttClient
-import io.jrb.labs.rtl433dp.features.publishing.data.Target
-
-class HiveMqttTarget(
-    private val datafill: MqttTargetDatafill
-) : Target {
-
-    private val _mqttClient = HiveMqttClient(datafill)
-
-    override val name: String
-        get() = datafill.name
-
-    override val type: String
-        get() = "MQTT"
-
-    override fun connect() {
-        _mqttClient.connect()
-    }
-
-    override fun disconnect() {
-        _mqttClient.disconnect()
-    }
-
-    override fun publish(topic: String, message: String) {
-        _mqttClient.publish(topic, payload = message.toByteArray())
-    }
-
+interface HiveMqttDatafill {
+    val clientId: String
+    val host: String
+    val port: Int
+    val username: String?
+    val password: String?
 }

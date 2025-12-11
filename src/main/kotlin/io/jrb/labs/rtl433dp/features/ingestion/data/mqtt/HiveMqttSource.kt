@@ -21,11 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package io.jrb.labs.rtl433dp.features.ingestion.data.mqtt
 
-import com.hivemq.client.mqtt.MqttClient
-import com.hivemq.client.mqtt.datatypes.MqttQos
-import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient
+import io.jrb.labs.commons.mqtt.HiveMqttClient
 import io.jrb.labs.rtl433dp.features.ingestion.data.Source
 import io.jrb.labs.rtl433dp.features.ingestion.data.SourceType
 import reactor.core.Disposable
@@ -35,12 +34,7 @@ class HiveMqttSource(
     private val datafill: MqttSourceDatafill
 ) : Source {
 
-    private val _mqttClient: Mqtt3AsyncClient = MqttClient.builder()
-        .useMqttVersion3()
-        .identifier(datafill.clientId)
-        .serverHost(datafill.host)
-        .serverPort(datafill.port)
-        .buildAsync()
+    private val _mqttClient = HiveMqttClient(datafill)
 
     override val name: String
         get() = datafill.name
@@ -60,14 +54,10 @@ class HiveMqttSource(
 
     override fun subscribe(topic: String, handler: (String) -> Unit): Disposable {
         return Flux.create{ sink ->
-            _mqttClient.subscribeWith()
-                .topicFilter(topic)
-                .qos(MqttQos.AT_MOST_ONCE)
-                .callback { publish ->
-                    val payload = String(publish.payloadAsBytes)
-                    sink.next(payload)
-                }
-                .send()
+            _mqttClient.subscribe(topicFilter = topic) { payloadBytes ->
+                val payload = String(payloadBytes)
+                sink.next(payload)
+            }
         }.subscribe(handler)
     }
 

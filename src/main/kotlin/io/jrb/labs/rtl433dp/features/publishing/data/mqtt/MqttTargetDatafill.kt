@@ -24,9 +24,13 @@
 
 package io.jrb.labs.rtl433dp.features.publishing.data.mqtt
 
+import io.jrb.labs.commons.mqtt.HiveMqttDatafill
+
 data class MqttTargetDatafill(
     val name: String,
-    val clientId: String,
-    val host: String,
-    val port: Int
-)
+    override val clientId: String,
+    override val host: String,
+    override val port: Int,
+    override val username: String?,
+    override val password: String?
+) : HiveMqttDatafill
