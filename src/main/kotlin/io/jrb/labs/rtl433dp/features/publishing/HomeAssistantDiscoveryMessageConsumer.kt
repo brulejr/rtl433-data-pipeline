@@ -24,11 +24,24 @@
 
 package io.jrb.labs.rtl433dp.features.publishing
 
-import io.jrb.labs.rtl433dp.features.publishing.data.mqtt.MqttTargetDatafill
-import org.springframework.boot.context.properties.ConfigurationProperties
+import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
+import io.jrb.labs.rtl433dp.events.PipelineEvent
+import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.publishing.service.PublishingService
 
-@ConfigurationProperties(prefix = "application.publishing")
-data class PublishingDatafill(
-    val enabled: Boolean = true,
-    val mqtt: List<MqttTargetDatafill>
-)
+class HomeAssistantDiscoveryMessageConsumer(
+    private val publishingService: PublishingService,
+    eventBus: PipelineEventBus,
+    systemEventBus: SystemEventBus
+) : AbstractPipelineEventConsumer<PipelineEvent.HomeAssistantDiscoveryMessage>(
+    kClass = PipelineEvent.HomeAssistantDiscoveryMessage::class,
+    eventBus = eventBus,
+    systemEventBus = systemEventBus
+) {
+
+    override suspend fun handleEvent(event: PipelineEvent.HomeAssistantDiscoveryMessage) {
+        publishingService.publish(event.topic, event.message)
+    }
+
+}

@@ -26,6 +26,9 @@ package io.jrb.labs.rtl433dp.features.publishing
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.publishing.data.Target
+import io.jrb.labs.rtl433dp.features.publishing.data.mqtt.HiveMqttTarget
+import io.jrb.labs.rtl433dp.features.publishing.service.PublishingService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Bean
@@ -37,9 +40,30 @@ import org.springframework.context.annotation.Configuration
 class PublishingConfiguration {
 
     @Bean
-    fun publishingEventConsumer(
+    fun homeAssistantDiscoveryMessageConsumer(
+        publishingService: PublishingService,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) = PublishingEventConsumer(eventBus, systemEventBus)
+    ) = HomeAssistantDiscoveryMessageConsumer(publishingService, eventBus, systemEventBus)
+
+    @Bean
+    fun homeAssistantSensorMessageConsumer(
+        publishingService: PublishingService,
+        eventBus: PipelineEventBus,
+        systemEventBus: SystemEventBus
+    ) = HomeAssistantSensorMessageConsumer(publishingService, eventBus, systemEventBus)
+
+    @Bean
+    fun publishingService(
+        targets: List<Target>,
+        systemEventBus: SystemEventBus
+    ) : PublishingService {
+        return PublishingService(targets, systemEventBus)
+    }
+
+    @Bean
+    fun targets(datafill: PublishingDatafill): List<Target> {
+        return datafill.mqtt.map { target -> HiveMqttTarget(target) }
+    }
 
 }

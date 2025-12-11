@@ -22,13 +22,21 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.publishing
+package io.jrb.labs.rtl433dp.features.device.entity
 
-import io.jrb.labs.rtl433dp.features.publishing.data.mqtt.MqttTargetDatafill
-import org.springframework.boot.context.properties.ConfigurationProperties
+sealed interface HomeAssistantMessage {
 
-@ConfigurationProperties(prefix = "application.publishing")
-data class PublishingDatafill(
-    val enabled: Boolean = true,
-    val mqtt: List<MqttTargetDatafill>
-)
+    val topic: String
+    val payload: String
+
+    data class HomeAssistantDeviceDiscovery(
+        override val topic: String,
+        override val payload: String
+    ) : HomeAssistantMessage
+
+    data class HomeAssistantSensor(
+        override val topic: String,
+        override val payload: String
+    ) : HomeAssistantMessage
+
+}

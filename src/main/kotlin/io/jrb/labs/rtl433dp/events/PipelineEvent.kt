@@ -34,12 +34,22 @@ sealed class PipelineEvent : Event {
         val modelFingerprint: String
     ) : PipelineEvent()
 
-    data class PublishingContent(
+    data class HomeAssistantDiscoveryMessage(
         val source: RawMessageSource,
         val data: Rtl433Data,
         val deviceFingerprint: String,
         val modelFingerprint: String,
-        val messages: Map<String, String>
+        val topic: String,
+        val message: String
+    ) : PipelineEvent()
+
+    data class HomeAssistantSensorMessage(
+        val source: RawMessageSource,
+        val data: Rtl433Data,
+        val deviceFingerprint: String,
+        val modelFingerprint: String,
+        val topic: String,
+        val message: String
     ) : PipelineEvent()
 
 }

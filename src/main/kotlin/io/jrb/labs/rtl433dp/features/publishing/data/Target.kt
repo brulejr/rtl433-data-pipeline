@@ -22,13 +22,18 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.publishing
+package io.jrb.labs.rtl433dp.features.publishing.data
 
-import io.jrb.labs.rtl433dp.features.publishing.data.mqtt.MqttTargetDatafill
-import org.springframework.boot.context.properties.ConfigurationProperties
+interface Target {
 
-@ConfigurationProperties(prefix = "application.publishing")
-data class PublishingDatafill(
-    val enabled: Boolean = true,
-    val mqtt: List<MqttTargetDatafill>
-)
+    val name: String
+
+    val type: String
+
+    fun connect()
+
+    fun disconnect()
+
+    fun publish(topic: String, message: String)
+
+}

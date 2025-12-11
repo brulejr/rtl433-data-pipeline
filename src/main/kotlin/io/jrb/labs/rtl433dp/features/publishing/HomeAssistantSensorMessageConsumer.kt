@@ -28,18 +28,20 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.publishing.service.PublishingService
 
-class PublishingEventConsumer(
+class HomeAssistantSensorMessageConsumer(
+    private val publishingService: PublishingService,
     eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
-) : AbstractPipelineEventConsumer<PipelineEvent.PublishingContent>(
-    kClass = PipelineEvent.PublishingContent::class,
+) : AbstractPipelineEventConsumer<PipelineEvent.HomeAssistantSensorMessage>(
+    kClass = PipelineEvent.HomeAssistantSensorMessage::class,
     eventBus = eventBus,
     systemEventBus = systemEventBus
 ) {
 
-    override suspend fun handleEvent(event: PipelineEvent.PublishingContent) {
-        log.info("Publishing -> {}", event)
+    override suspend fun handleEvent(event: PipelineEvent.HomeAssistantSensorMessage) {
+        publishingService.publish(event.topic, event.message)
     }
 
 }

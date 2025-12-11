@@ -35,6 +35,9 @@ import io.jrb.labs.rtl433dp.features.device.entity.ComponentInfo
 import io.jrb.labs.rtl433dp.features.device.entity.DeviceInfo
 import io.jrb.labs.rtl433dp.features.device.entity.DeviceInfo.Companion.deviceInfo
 import io.jrb.labs.rtl433dp.features.device.entity.DiscoveryInfo
+import io.jrb.labs.rtl433dp.features.device.entity.HomeAssistantMessage
+import io.jrb.labs.rtl433dp.features.device.entity.HomeAssistantMessage.HomeAssistantSensor
+import io.jrb.labs.rtl433dp.features.device.entity.HomeAssistantMessage.HomeAssistantDeviceDiscovery
 import io.jrb.labs.rtl433dp.features.device.entity.OriginInfo.Companion.originInfo
 import io.jrb.labs.rtl433dp.features.device.entity.SensorInfo
 import io.jrb.labs.rtl433dp.features.model.service.ModelService
@@ -53,7 +56,7 @@ class DeviceService(
 
     private val log = LoggerFactory.getLogger(DeviceService::class.java)
 
-    suspend fun processEvent(event: PipelineEvent.KnownDevice): Map<String, String> {
+    suspend fun processEvent(event: PipelineEvent.KnownDevice): List<HomeAssistantMessage> {
         val modelName = event.data.model
         val modelFingerprint = event.modelFingerprint
         when (val model = modelService.findModelResource(modelName, modelFingerprint)) {
@@ -62,16 +65,16 @@ class DeviceService(
                 val deviceDiscovery = toHomeAssistantDeviceDiscovery(event.data, sensors)
                 val deviceData = toHomeAssistantSensor(event.data, sensors)
                 log.info("Device -> deviceData = {}, deviceDiscovery = {}", deviceData, deviceDiscovery)
-                return mapOf(deviceDiscovery, deviceData)
+                return listOf(deviceDiscovery, deviceData)
             }
             else -> {
                 log.error("Failed to find model '{}' for known device fingerprint: {}", modelName, event.deviceFingerprint)
-                return emptyMap()
+                return emptyList()
             }
         }
     }
 
-    private fun toHomeAssistantDeviceDiscovery(rtl433Data: Rtl433Data, sensors: List<SensorMappingResource>): Pair<String, String> {
+    private fun toHomeAssistantDeviceDiscovery(rtl433Data: Rtl433Data, sensors: List<SensorMappingResource>): HomeAssistantDeviceDiscovery {
         val device = deviceInfo(rtl433Data)
         val origin = originInfo()
         val components = rtl433Data.getProperties()
@@ -85,17 +88,23 @@ class DeviceService(
             stateTopic = stateTopic(device),
             components = components
         )
-        return configTopic(device) to objectMapper.writeValueAsString(discoveryInfo)
+        return HomeAssistantDeviceDiscovery(
+            topic = configTopic(device),
+            payload = objectMapper.writeValueAsString(discoveryInfo)
+        )
     }
 
-    private fun toHomeAssistantSensor(rtl433Data: Rtl433Data, sensors: List<SensorMappingResource>): Pair<String, String> {
+    private fun toHomeAssistantSensor(rtl433Data: Rtl433Data, sensors: List<SensorMappingResource>): HomeAssistantSensor {
         val device = deviceInfo(rtl433Data)
         val data = buildMap {
             put("timestamp", Instant.now())
             put("device", device.name)
             putAll(normalizeData(rtl433Data.getProperties(), sensors))
         }
-        return stateTopic(device) to objectMapper.writeValueAsString(data)
+        return HomeAssistantSensor(
+            topic = stateTopic(device),
+            payload = objectMapper.writeValueAsString(data)
+        )
     }
 
 

@@ -28,6 +28,7 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.device.entity.HomeAssistantMessage
 import io.jrb.labs.rtl433dp.features.device.service.DeviceService
 
 class DeviceEventConsumer(
@@ -42,15 +43,28 @@ class DeviceEventConsumer(
 
     override suspend fun handleEvent(event: PipelineEvent.KnownDevice) {
         val messages = deviceService.processEvent(event)
-        if (messages.isNotEmpty()) {
-            eventBus.publish(PipelineEvent.PublishingContent(
-                source = event.source,
-                data = event.data,
-                deviceFingerprint = event.deviceFingerprint,
-                modelFingerprint = event.modelFingerprint,
-                messages = messages
-            ))
-        }
+        messages.forEach { message -> when (message) {
+            is HomeAssistantMessage.HomeAssistantDeviceDiscovery -> {
+                eventBus.publish(PipelineEvent.HomeAssistantDiscoveryMessage(
+                    source = event.source,
+                    data = event.data,
+                    deviceFingerprint = event.deviceFingerprint,
+                    modelFingerprint = event.modelFingerprint,
+                    topic = message.topic,
+                    message = message.payload
+                ))
+            }
+            is HomeAssistantMessage.HomeAssistantSensor -> {
+                eventBus.publish(PipelineEvent.HomeAssistantSensorMessage(
+                    source = event.source,
+                    data = event.data,
+                    deviceFingerprint = event.deviceFingerprint,
+                    modelFingerprint = event.modelFingerprint,
+                    topic = message.topic,
+                    message = message.payload
+                ))
+            }
+        }}
     }
 
 }
