@@ -25,6 +25,7 @@
 package io.jrb.labs.rtl433dp.features.recommendation
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.service.CrudOutcome
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
@@ -49,27 +50,36 @@ class RecommendationEventConsumer(
         val deviceId = payload.id
         val propertiesSample = payload.getProperties()
 
-        // skip over known devices
-        if (knownDeviceService.isKnownDevice(event.deviceFingerprint)) {
-            eventBus.publish(PipelineEvent.KnownDevice(
-                source = event.source,
-                data = event.data,
-                deviceFingerprint = event.deviceFingerprint,
-                modelFingerprint = event.modelFingerprint
-            ))
-        }
+        when (val response = knownDeviceService.findByFingerprint(event.deviceFingerprint)) {
 
-        // handle unknown devices
-        else {
-            val bucketCount = bucketingService.registerObservation(event)
-            recommendationService.maybeCreateRecommendation(
-                deviceId = deviceId,
-                model = payload.model,
-                deviceFingerprint = event.deviceFingerprint,
-                modelFingerprint = event.modelFingerprint,
-                bucketCount = bucketCount,
-                propertiesSample = propertiesSample
-            )
+            // skip over known devices
+            is CrudOutcome.Success -> {
+                val knownDevice = response.data
+                eventBus.publish(PipelineEvent.KnownDevice(
+                    source = event.source,
+                    data = event.data.copy(
+                        name = knownDevice.name,
+                        type = knownDevice.type,
+                        area = knownDevice.area
+                    ),
+                    deviceFingerprint = event.deviceFingerprint,
+                    modelFingerprint = event.modelFingerprint
+                ))
+            }
+
+            // handle unknown devices
+            else -> {
+                val bucketCount = bucketingService.registerObservation(event)
+                recommendationService.maybeCreateRecommendation(
+                    deviceId = deviceId,
+                    model = payload.model,
+                    deviceFingerprint = event.deviceFingerprint,
+                    modelFingerprint = event.modelFingerprint,
+                    bucketCount = bucketCount,
+                    propertiesSample = propertiesSample
+                )
+            }
+
         }
     }
 
