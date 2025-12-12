@@ -324,6 +324,27 @@ The goal is to cover:
 
 ---
 
+## Versioning
+
+This project uses **Git tags** as the single source of truth for the application version.
+
+- Release tags follow the pattern: `vMAJOR.MINOR.PATCH` (e.g. `v0.3.1`).
+- The GitHub Actions release workflow runs when a tag matching `v*.*.*` is pushed.
+- During the build, Gradle sets `project.version` from the tag:
+
+  - Tag `v0.3.1` → `project.version = 0.3.1`
+
+- Spring Boot’s `buildInfo()` task writes this version into `build-info.properties`, which is then exposed via the `/actuator/info` endpoint.
+
+As a result:
+
+- Docker images are tagged as:
+
+  - `ghcr.io/<owner>/<repo>:0.3.1`
+  - `ghcr.io/<owner>/<repo>:latest`
+
+- The running service reports the same version in the Actuator `/info` endpoint.
+
 ## Issue Management & Contributing
 
 ### Filing Issues

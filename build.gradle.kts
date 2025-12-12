@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "io.jrb.labs"
-description = "RTL433 Data Pipeline"
+description = "RTL433 data processing pipeline for rtl_433 MQTT events"
 
 /**
  * Resolve the project version:

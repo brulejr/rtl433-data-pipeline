@@ -4,7 +4,13 @@ spring.profiles.active: ${PROFILE:local}
 server.port: ${SERVER_PORT:5001}
 
 info:
-  app.profile: ${spring.profiles.active}
+  app:
+    name: ${spring.application.name}
+    description: RTL433 data processing pipeline for rtl_433 MQTT events
+    # This is the important line:
+    # build.version is created by Spring Boot's buildInfo() using project.version
+    version: ${build.version:${project.version:unknown}}
+    profile: ${spring.profiles.active}
 
 management:
   endpoints:
