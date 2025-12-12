@@ -4,8 +4,6 @@ spring.profiles.active: ${PROFILE:local}
 server.port: ${SERVER_PORT:5001}
 
 info:
-  app.name: ${spring.application.name}
-  app.version: ${version:project.version}
   app.profile: ${spring.profiles.active}
 
 management:

@@ -59,6 +59,10 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+springBoot {
+    buildInfo()
+}
+
 jib {
     from {
         image = "eclipse-temurin:21-jre-jammy"
