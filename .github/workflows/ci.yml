@@ -8,6 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # fallback env if Gradle doesn't see gradle.properties
+      GITHUB_ACTOR: ${{ github.actor }}
+      GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -19,6 +23,14 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: gradle
+
+      - name: Configure Gradle for GitHub Packages
+        run: |
+          mkdir -p ~/.gradle
+          cat <<EOF >> ~/.gradle/gradle.properties
+          gpr.user=${GITHUB_ACTOR}
+          gpr.key=${GH_PACKAGES_TOKEN}
+          EOF
 
       - name: Build and test
         run: ./gradlew clean build --no-daemon
