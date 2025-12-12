@@ -1,0 +1,25 @@
+meta {
+  name: Promote Recommendation (sliding door)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{rtl433_data_pipeline_url}}/api/v1/recommendations/promote
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "deviceFingerprint": "08dac5e4594e2cab3a9aae6ebf92458fa8fc58e9f420fe0f548ff6a74153ffdc",
+    "name": "sliding-door",
+    "type": "security",
+    "area": "kitchen"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

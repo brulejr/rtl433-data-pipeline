@@ -5,6 +5,8 @@ services:
     image: brulejr/rtl433-data-pipeline:latest   # built by Jib
     container_name: rtl433-data-pipeline
     restart: unless-stopped
+    ports:
+      - 5001:5001
 
     environment:
 
