@@ -6,8 +6,8 @@ on:
       - 'v*.*.*'
 
 permissions:
-  contents: read
-  packages: write   # needed for GHCR
+  contents: write   # allow creating GitHub Releases
+  packages: write   # allow pushing to GHCR
 
 env:
   RELEASE_TAG: ${{ github.ref_name }}    # e.g. v0.3.1
