@@ -32,9 +32,9 @@ jobs:
 
       - name: Build and push image with Jib to GHCR
         env:
-          # Jib auth for GHCR
-          JIB_TO_AUTH_USERNAME: ${{ github.actor }}
-          JIB_TO_AUTH_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          # GHCR auth for Jib
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN:    ${{ secrets.GHCR_TOKEN }}
 
           # Maven GitHub Packages auth for ksb-commons
           GITHUB_PACKAGES_USER:  ${{ github.actor }}

@@ -97,7 +97,12 @@ jib {
         // Tag with the Gradle project version (derived from tag) and "latest"
         tags = setOf(project.version.toString(), "latest")
 
-        // NO auth block here; Jib will pick up JIB_TO_AUTH_USERNAME/PASSWORD from env
+        // Explicit auth from environment
+        auth {
+            username = System.getenv("GHCR_USERNAME")
+                ?: System.getenv("GITHUB_ACTOR")  // fallback
+            password = System.getenv("GHCR_TOKEN")
+        }
     }
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"
