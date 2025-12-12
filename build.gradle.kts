@@ -70,13 +70,12 @@ jib {
     }
 
     container {
+        creationTime = "USE_CURRENT_TIMESTAMP"
         user = "1000:1000"
         ports = listOf("5001")
-
         environment = mapOf(
             "APP_MAIN_CLASS" to "io.jrb.labs.rtl433dp.Rtl433DataPipelineApplicationKt"
         )
-
         entrypoint = listOf("/bin/bash", "/opt/docker/entrypoint.sh")
     }
 
