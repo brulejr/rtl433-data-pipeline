@@ -31,7 +31,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build and push image with Jib to GHCR
-        run: ./gradlew jib
+        env:
+          # Jib will pick these up automatically for the "to" registry
+          JIB_TO_AUTH_USERNAME: ${{ github.actor }}
+          JIB_TO_AUTH_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew jib --info
 
       # Optional but nice: create a GitHub Release for the tag
       - name: Create GitHub Release

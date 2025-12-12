@@ -19,11 +19,10 @@ description = "RTL433 data processing pipeline for rtl_433 MQTT events"
  *
  * - In CI on a tag build, GITHUB_REF_NAME will be something like "v0.3.1".
  *   We strip the leading "v" and use "0.3.1" as the version.
- * - Otherwise, fall back to projectVersion from gradle.properties
+ * - Otherwise, fall back to projectVersion from gradle.properties.
  */
 version = System.getenv("GITHUB_REF_NAME")
     ?.let { refName ->
-        // In GitHub Actions, ref_name is already just "v0.3.1"
         if (refName.matches(Regex("""v\d+\.\d+\.\d+"""))) {
             refName.removePrefix("v")
         } else {
@@ -43,7 +42,6 @@ repositories {
     maven {
         url = uri("https://maven.pkg.github.com/brulejr/ksb-commons")
         credentials {
-            // Local dev: ~/.gradle/gradle.properties
             username = findProperty("gpr.user") as String?
                 ?: System.getenv("GITHUB_ACTOR")
             password = findProperty("gpr.key") as String?
@@ -87,18 +85,14 @@ jib {
         image = "eclipse-temurin:21-jre-jammy"
     }
     to {
-        // Use GHCR and the current repo by default
-        val repo = System.getenv("GITHUB_REPOSITORY") ?: "brulejr/rtl433-data-pipeline"
+        // Use GHCR and the current repo by default, in lowercase (GHCR requirement)
+        val repo = (System.getenv("GITHUB_REPOSITORY") ?: "brulejr/rtl433-data-pipeline").lowercase()
         image = "ghcr.io/$repo"
 
         // Tag with the Gradle project version (derived from tag) and "latest"
         tags = setOf(project.version.toString(), "latest")
 
-        // Auth for CI (GitHub Actions)
-        auth {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
-        }
+        // NO auth block here; Jib will pick up JIB_TO_AUTH_USERNAME/PASSWORD from env
     }
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"
@@ -112,7 +106,6 @@ jib {
     extraDirectories {
         paths {
             path {
-                // Use setFrom(...) for newer Jib versions
                 setFrom(file("docker/jib"))
                 into = "/opt/docker"
                 permissions.set(
