@@ -89,7 +89,10 @@ class KnownDeviceService(
                         val entity = KnownDevice(promotionRequest, recommendation)
                         log.info("Known Device -> {}", entity)
                         knownDeviceRepository.save(entity).awaitSingle().toKnownDeviceResource().let(
-                            { CrudOutcome.Success(it) }
+                            { data ->
+                                recommendationRepository.save(recommendation.copy(promoted = true)).awaitSingle()
+                                CrudOutcome.Success(data)
+                            }
                         )
                     } else {
                         CrudOutcome.NotFound("Model is not recognized for device fingerprint: $deviceFingerprint")
