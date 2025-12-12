@@ -39,14 +39,19 @@ java {
 
 repositories {
     mavenCentral()
+
     maven {
         url = uri("https://maven.pkg.github.com/brulejr/ksb-commons")
         credentials {
             username = findProperty("gpr.user") as String?
-                ?: System.getenv("GITHUB_ACTOR")
+                ?: System.getenv("GITHUB_PACKAGES_USER")
+                        ?: System.getenv("GITHUB_ACTOR")
+                        ?: "brulejr"
             password = findProperty("gpr.key") as String?
-                ?: System.getenv("GITHUB_TOKEN")
-                        ?: System.getenv("GITHUB_PACKAGES_TOKEN")
+                    // Prefer a dedicated packages token
+                ?: System.getenv("GITHUB_PACKAGES_TOKEN")
+                        // Fall back to the default GitHub token if explicitly allowed
+                        ?: System.getenv("GITHUB_TOKEN")
         }
     }
 }
