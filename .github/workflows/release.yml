@@ -37,8 +37,8 @@ jobs:
           JIB_TO_AUTH_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
           # Maven GitHub Packages auth for ksb-commons
-          GITHUB_PACKAGES_USER: brulejr
-          GITHUB_PACKAGES_TOKEN: ${{ secrets.KSB_PACKAGES_TOKEN }}
+          GITHUB_PACKAGES_USER:  ${{ github.actor }}
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         run: ./gradlew jib --info
 
       # Optional but nice: create a GitHub Release for the tag
