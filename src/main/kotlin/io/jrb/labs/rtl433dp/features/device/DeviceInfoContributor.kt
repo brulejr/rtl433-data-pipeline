@@ -22,32 +22,20 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.dedupe
+package io.jrb.labs.rtl433dp.features.device
 
-import io.jrb.labs.commons.eventbus.SystemEventBus
-import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.dedupe.service.DedupeService
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import io.jrb.labs.rtl433dp.actuator.FeatureInfoContributor
 
-@Configuration
-@ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.dedupe"])
-@ConditionalOnProperty(prefix = "application.dedupe", name = ["enabled"], havingValue = "true", matchIfMissing = true)
-class DedupeConfiguration {
+class DeviceInfoContributor(
+    private val datafill: DeviceDatafill
+) : FeatureInfoContributor {
 
-    @Bean
-    fun dedupeEventConsumer(
-        dedupeService: DedupeService,
-        eventBus: PipelineEventBus,
-        systemEventBus: SystemEventBus
-    ) = DedupeEventConsumer(dedupeService, eventBus, systemEventBus)
+    override val key: String = "device"
 
-    @Bean
-    fun dedupeService(datafill: DedupeDatafill) = DedupeService(datafill)
-
-    @Bean
-    fun dedupeInfoContributor(datafill: DedupeDatafill) = DedupeInfoContributor(datafill)
+    override fun info(): Map<String, Any?> = mapOf(
+        "enabled" to datafill.enabled,
+        "configTopic" to datafill.configTopic,
+        "stateTopic" to datafill.stateTopic
+    )
 
 }

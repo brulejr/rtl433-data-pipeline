@@ -22,32 +22,23 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.dedupe
+package io.jrb.labs.rtl433dp.actuator
 
-import io.jrb.labs.commons.eventbus.SystemEventBus
-import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.dedupe.service.DedupeService
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import org.springframework.boot.actuate.info.Info
+import org.springframework.boot.actuate.info.InfoContributor
+import org.springframework.stereotype.Component
 
-@Configuration
-@ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.dedupe"])
-@ConditionalOnProperty(prefix = "application.dedupe", name = ["enabled"], havingValue = "true", matchIfMissing = true)
-class DedupeConfiguration {
+@Component
+class FeaturesInfoContributor(
+    private val contributors: List<FeatureInfoContributor>
+) : InfoContributor {
 
-    @Bean
-    fun dedupeEventConsumer(
-        dedupeService: DedupeService,
-        eventBus: PipelineEventBus,
-        systemEventBus: SystemEventBus
-    ) = DedupeEventConsumer(dedupeService, eventBus, systemEventBus)
+    override fun contribute(builder: Info.Builder) {
+        val features = contributors
+            .sortedBy { it.key }
+            .associate { it.key to it.info() }
 
-    @Bean
-    fun dedupeService(datafill: DedupeDatafill) = DedupeService(datafill)
-
-    @Bean
-    fun dedupeInfoContributor(datafill: DedupeDatafill) = DedupeInfoContributor(datafill)
+        builder.withDetail("features", features)
+    }
 
 }

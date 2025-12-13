@@ -54,4 +54,7 @@ class DeviceConfiguration {
         systemEventBus: SystemEventBus
     ) = DeviceService(datafill, objectMapper, modelService, systemEventBus)
 
+    @Bean
+    fun deviceInfoContributor(datafill: DeviceDatafill) = DeviceInfoContributor(datafill)
+
 }

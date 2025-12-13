@@ -65,6 +65,9 @@ class ModelConfiguration(
         return ModelService(modelRepository, objectMapper, systemEventBus)
     }
 
+    @Bean
+    fun modelInfoContributor(datafill: ModelDatafill) = ModelInfoContributor(datafill)
+
     @PostConstruct
     fun initModelIndexes() {
         val indexOps: ReactiveIndexOperations = mongoTemplate.indexOps(ModelEntity::class.java)

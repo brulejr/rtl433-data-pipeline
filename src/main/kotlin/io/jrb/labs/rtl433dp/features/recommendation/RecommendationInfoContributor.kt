@@ -22,32 +22,22 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.dedupe
+package io.jrb.labs.rtl433dp.features.recommendation
 
-import io.jrb.labs.commons.eventbus.SystemEventBus
-import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.dedupe.service.DedupeService
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import io.jrb.labs.rtl433dp.actuator.FeatureInfoContributor
 
-@Configuration
-@ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.dedupe"])
-@ConditionalOnProperty(prefix = "application.dedupe", name = ["enabled"], havingValue = "true", matchIfMissing = true)
-class DedupeConfiguration {
+class RecommendationInfoContributor(
+    private val datafill: RecommendationDatafill
+) : FeatureInfoContributor {
 
-    @Bean
-    fun dedupeEventConsumer(
-        dedupeService: DedupeService,
-        eventBus: PipelineEventBus,
-        systemEventBus: SystemEventBus
-    ) = DedupeEventConsumer(dedupeService, eventBus, systemEventBus)
+    override val key: String = "recommendation"
 
-    @Bean
-    fun dedupeService(datafill: DedupeDatafill) = DedupeService(datafill)
-
-    @Bean
-    fun dedupeInfoContributor(datafill: DedupeDatafill) = DedupeInfoContributor(datafill)
+    override fun info(): Map<String, Any?> = mapOf(
+        "enabled" to datafill.enabled,
+        "bucketCountThreshold" to datafill.bucketCountThreshold,
+        "bucketDurationMinutes" to datafill.bucketDurationMinutes,
+        "dedupeCacheTtlMilliseconds" to datafill.dedupeCacheTtlMilliseconds,
+        "dedupeCacheMaxSize" to datafill.dedupeCacheMaxSize
+    )
 
 }

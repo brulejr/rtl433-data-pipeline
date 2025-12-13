@@ -55,4 +55,7 @@ class IngestionConfiguration {
         return datafill.mqtt.map { source -> HiveMqttSource(source) }
     }
 
+    @Bean
+    fun ingestionInfoContributor(datafill: IngestionDatafill) = IngestionInfoContributor(datafill)
+
 }

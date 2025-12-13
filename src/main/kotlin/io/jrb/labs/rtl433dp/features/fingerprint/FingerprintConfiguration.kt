@@ -49,4 +49,7 @@ class FingerprintConfiguration {
     fun fingerprintService(datafill: FingerprintDatafill, objectMapper: ObjectMapper, systemEventBus: SystemEventBus) =
         FingerprintService(datafill, objectMapper, systemEventBus)
 
+    @Bean
+    fun fingerprintInfoContributor(datafill: FingerprintDatafill) = FingerprintInfoContributor(datafill)
+
 }

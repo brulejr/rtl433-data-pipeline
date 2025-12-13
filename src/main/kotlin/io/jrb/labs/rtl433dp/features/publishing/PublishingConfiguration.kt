@@ -66,4 +66,7 @@ class PublishingConfiguration {
         return datafill.mqtt.map { target -> HiveMqttTarget(target) }
     }
 
+    @Bean
+    fun publishingInfoContributor(datafill: PublishingDatafill) = PublishingInfoContributor(datafill)
+
 }

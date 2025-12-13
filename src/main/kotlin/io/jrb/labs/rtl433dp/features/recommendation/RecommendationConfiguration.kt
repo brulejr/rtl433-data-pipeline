@@ -87,6 +87,9 @@ class RecommendationConfiguration(
         return RecommendationService(repository, datafill)
     }
 
+    @Bean
+    fun recommendationInfoContributor(datafill: RecommendationDatafill) = RecommendationInfoContributor(datafill)
+
     @PostConstruct
     fun initFingerprintIndexes() {
         val index = Index()
