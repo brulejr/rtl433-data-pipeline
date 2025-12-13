@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  rtl_433:
+    container_name: rtl_433
+    image: hertzg/rtl_433:latest
+    restart: unless-stopped
+    devices:
+      - "/dev/bus/usb/002/006"
+    command:
+      - "-Mtime:unix:usec:utc"
+      - "-Mlevel"
+      - "-Fmqtt://mosquitto:1883,retain=1"

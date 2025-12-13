@@ -12,7 +12,7 @@ post {
 
 params:path {
   modelName: Acurite-Tower
-  fingerprint: cec4b64511e497464a6727bc533022c597271fb4fd66b393fc34d24778b323b6
+  fingerprint: 8b3b3b1da16a482025e6d6a6ca9f9659409720fc65b1544698941aaf4fc06078
 }
 
 body:json {
@@ -22,7 +22,12 @@ body:json {
     "sensors": [
       { "name": "battery_ok", "type": "BINARY", "class": "battery", "friendlyName": "battery" },
       { "name": "temperature_C", "type": "ANALOG", "class": "temperature" },
-      { "name": "humidity", "type": "ANALOG", "class": "humidity" }
+      { "name": "humidity", "type": "ANALOG", "class": "humidity" },
+      { "name": "mod", "type": "ANALOG", "class": "enum" },
+      { "name": "freq", "type": "ANALOG", "class": "frequency" },
+      { "name": "rssi", "type": "ANALOG", "class": "signal_strength" },
+      { "name": "snr", "type": "ANALOG", "class": "sensor" },
+      { "name": "noise", "type": "ANALOG", "class": "signal_strength" }
     ]
   }
 }

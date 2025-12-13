@@ -7,9 +7,6 @@ info:
   app:
     name: ${spring.application.name}
     description: RTL433 data processing pipeline for rtl_433 MQTT events
-    # This is the important line:
-    # build.version is created by Spring Boot's buildInfo() using project.version
-    version: ${build.version:${project.version:unknown}}
     profile: ${spring.profiles.active}
 
 management:
@@ -39,7 +36,7 @@ application.ingestion:
       host: ${MQTT_RTL433_HOST}
       port: ${MQTT_RTL433_PORT:1883}
       clientId: rtl433-client-${random.uuid}
-      topic: ${MQTT_RTL433_TOPIC:rtl_433/c568f8b433e2/events}
+      topic: ${MQTT_RTL433_TOPIC}
 
 application.fingerprint:
     enabled: true

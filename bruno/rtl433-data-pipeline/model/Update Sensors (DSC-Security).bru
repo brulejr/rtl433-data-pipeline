@@ -12,7 +12,7 @@ post {
 
 params:path {
   modelName: DSC-Security
-  fingerprint: ff42d1c37c9bfbb18cb655ad57ba14ba3cc012cb20b5511e7b4217943e0ae3c1
+  fingerprint: db90b626017ba5f4c9d4806c0433e551a71f27ed0de511e94b7b682ff05e1fee
 }
 
 body:json {
@@ -24,7 +24,12 @@ body:json {
       { "name": "battery_ok", "type": "BINARY", "class": "battery", "friendlyName": "battery" },
       { "name": "tamper", "type": "BINARY", "class": "tamper" },
       { "name": "exception", "type": "ANALOG", "class": "problem" },
-      { "name": "timestamp", "type": "ANALOG", "class": "timestamp" }
+      { "name": "timestamp", "type": "ANALOG", "class": "timestamp" },
+      { "name": "mod", "type": "ANALOG", "class": "enum" },
+      { "name": "freq", "type": "ANALOG", "class": "frequency" },
+      { "name": "rssi", "type": "ANALOG", "class": "signal_strength" },
+      { "name": "snr", "type": "ANALOG", "class": "sensor" },
+      { "name": "noise", "type": "ANALOG", "class": "signal_strength" }
     ]
   }
 }

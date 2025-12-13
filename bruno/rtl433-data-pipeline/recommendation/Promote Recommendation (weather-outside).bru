@@ -1,0 +1,25 @@
+meta {
+  name: Promote Recommendation (weather-outside)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{rtl433_data_pipeline_url}}/api/v1/recommendations/promote
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "deviceFingerprint": "c5906ed24198e47d04ddb9f4805f93eb227ca09f15b6af31cfd46fc87777d8bd",
+    "name": "weather-outside",
+    "type": "weather",
+    "area": "outside"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
