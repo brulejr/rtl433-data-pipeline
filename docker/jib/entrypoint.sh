@@ -34,4 +34,5 @@ echo "[entrypoint] executing application..."
 
 exec java ${JAVA_OPTS} \
   -cp "/app/resources:/app/classes:/app/libs/*" \
+  "-Dspring.config.additional-location=file:/config/" \
   "$APP_MAIN_CLASS"
