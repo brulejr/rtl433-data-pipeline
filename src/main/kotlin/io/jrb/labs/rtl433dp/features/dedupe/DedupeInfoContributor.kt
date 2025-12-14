@@ -24,7 +24,7 @@
 
 package io.jrb.labs.rtl433dp.features.dedupe
 
-import io.jrb.labs.rtl433dp.actuator.FeatureInfoContributor
+import io.jrb.labs.commons.actuator.FeatureInfoContributor
 
 class DedupeInfoContributor(
     private val datafill: DedupeDatafill

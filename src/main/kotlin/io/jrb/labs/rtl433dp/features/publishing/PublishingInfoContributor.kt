@@ -24,7 +24,7 @@
 
 package io.jrb.labs.rtl433dp.features.publishing
 
-import io.jrb.labs.rtl433dp.actuator.FeatureInfoContributor
+import io.jrb.labs.commons.actuator.FeatureInfoContributor
 
 class PublishingInfoContributor(
     private val datafill: PublishingDatafill
