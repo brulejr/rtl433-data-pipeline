@@ -1,0 +1,25 @@
+meta {
+  name: Promote Recommendation (garage door)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{rtl433_data_pipeline_url}}/api/v1/recommendations/promote
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "deviceFingerprint": "db49933d9e9f07402c542abbb752631383ca7770153361bc809fbad4a15962df",
+    "name": "garage-door",
+    "type": "security",
+    "area": "diningroom"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
