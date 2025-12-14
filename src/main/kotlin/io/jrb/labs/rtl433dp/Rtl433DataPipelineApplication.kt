@@ -1,5 +1,7 @@
 package io.jrb.labs.rtl433dp
 
+import io.jrb.labs.commons.actuator.FeatureInfoContributor
+import io.jrb.labs.commons.actuator.FeaturesInfoContributor
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.eventbus.SystemEventLogger
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -14,6 +16,9 @@ class Rtl433DataPipelineApplication {
 
     @Bean
     fun systemEventLogger(systemEventBus: SystemEventBus): SystemEventLogger = SystemEventLogger(systemEventBus)
+
+    @Bean
+    fun featuresInfoContributor(contributors: List<FeatureInfoContributor>) = FeaturesInfoContributor(contributors)
 
 }
 
