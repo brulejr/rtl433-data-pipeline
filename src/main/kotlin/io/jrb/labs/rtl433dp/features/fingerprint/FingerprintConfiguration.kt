@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.FINGERPRINT
 import io.jrb.labs.rtl433dp.features.fingerprint.service.FingerprintService
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -55,7 +56,8 @@ class FingerprintConfiguration {
         featureMetricsFactory: FeatureMetricsFactory,
         systemEventBus: SystemEventBus
     ) : FingerprintService {
-        return FingerprintService(datafill, objectMapper, meterRegistry, featureMetricsFactory, systemEventBus)
+        val featureMetrics = featureMetricsFactory.forFeature(FINGERPRINT)
+        return FingerprintService(datafill, objectMapper, meterRegistry, featureMetrics, systemEventBus)
     }
 
 
