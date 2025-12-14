@@ -26,8 +26,10 @@ package io.jrb.labs.rtl433dp.features.fingerprint
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.features.fingerprint.service.FingerprintService
+import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Bean
@@ -46,8 +48,16 @@ class FingerprintConfiguration {
     ) = FingerprintEventConsumer(fingerprintService, eventBus, systemEventBus)
 
     @Bean
-    fun fingerprintService(datafill: FingerprintDatafill, objectMapper: ObjectMapper, systemEventBus: SystemEventBus) =
-        FingerprintService(datafill, objectMapper, systemEventBus)
+    fun fingerprintService(
+        datafill: FingerprintDatafill,
+        objectMapper: ObjectMapper,
+        meterRegistry: MeterRegistry,
+        featureMetricsFactory: FeatureMetricsFactory,
+        systemEventBus: SystemEventBus
+    ) : FingerprintService {
+        return FingerprintService(datafill, objectMapper, meterRegistry, featureMetricsFactory, systemEventBus)
+    }
+
 
     @Bean
     fun fingerprintInfoContributor(datafill: FingerprintDatafill) = FingerprintInfoContributor(datafill)

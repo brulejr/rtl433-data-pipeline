@@ -4,6 +4,8 @@ import io.jrb.labs.commons.actuator.FeatureInfoContributor
 import io.jrb.labs.commons.actuator.FeaturesInfoContributor
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.eventbus.SystemEventLogger
+import io.jrb.labs.commons.metrics.FeatureMetricsFactory
+import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -19,6 +21,9 @@ class Rtl433DataPipelineApplication {
 
     @Bean
     fun featuresInfoContributor(contributors: List<FeatureInfoContributor>) = FeaturesInfoContributor(contributors)
+
+    @Bean
+    fun featureMetricsFactory(registry: MeterRegistry) = FeatureMetricsFactory(registry)
 
 }
 

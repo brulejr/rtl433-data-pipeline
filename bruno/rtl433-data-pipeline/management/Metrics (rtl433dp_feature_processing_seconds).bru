@@ -1,0 +1,20 @@
+meta {
+  name: Metrics (rtl433dp_feature_processing_seconds)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{rtl433_data_pipeline_url}}/mgmt/metrics/rtl433dp_feature_processing_seconds?tag=feature:fingerprint
+  body: none
+  auth: inherit
+}
+
+params:query {
+  tag: feature:fingerprint
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

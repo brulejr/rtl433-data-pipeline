@@ -28,10 +28,14 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.commons.service.ControllableService
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.FINGERPRINT
 import io.jrb.labs.rtl433dp.features.fingerprint.FingerprintDatafill
 import io.jrb.labs.rtl433dp.types.Fingerprint
 import io.jrb.labs.rtl433dp.types.Rtl433Data
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Timer
 import org.slf4j.LoggerFactory
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
@@ -39,12 +43,35 @@ import java.security.MessageDigest
 class FingerprintService(
     private val datafill: FingerprintDatafill,
     private val objectMapper: ObjectMapper,
+    private val meterRegistry: MeterRegistry,
+    featureMetricsFactory: FeatureMetricsFactory,
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
 
     private val log = LoggerFactory.getLogger(FingerprintService::class.java)
 
+    private val metrics = featureMetricsFactory.forFeature(FINGERPRINT)
+
+    private val fingerprintedCounter = metrics.eventCounter(FINGERPRINT.featureId)
+    private val errorCounter = metrics.errorCounter(FINGERPRINT.featureId)
+    private val timer = metrics.processingTimer(FINGERPRINT.featureId)
+
     fun fingerprint(data: Rtl433Data): Fingerprint {
+        val sample = Timer.start(meterRegistry)
+        try {
+            val result = doFingerprint(data)
+            fingerprintedCounter.increment()
+            return result
+        } catch (ex: Exception) {
+            errorCounter.increment()
+            log.error("Fingerprinting failed: {}", ex.message, ex)
+            throw ex
+        } finally {
+            sample.stop(timer)
+        }
+    }
+
+    private fun doFingerprint(data: Rtl433Data): Fingerprint {
         val rawJson = objectMapper.writeValueAsString(data)
         val eventFingerprint = fingerprintHash(rawJson)
         val deviceFingerprint = deviceFingerprint(data)
