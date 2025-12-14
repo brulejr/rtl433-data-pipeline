@@ -34,8 +34,6 @@ import io.jrb.labs.rtl433dp.features.FeatureDescriptors.FINGERPRINT
 import io.jrb.labs.rtl433dp.features.fingerprint.FingerprintDatafill
 import io.jrb.labs.rtl433dp.types.Fingerprint
 import io.jrb.labs.rtl433dp.types.Rtl433Data
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Timer
 import org.slf4j.LoggerFactory
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
@@ -43,49 +41,44 @@ import java.security.MessageDigest
 class FingerprintService(
     private val datafill: FingerprintDatafill,
     private val objectMapper: ObjectMapper,
-    private val meterRegistry: MeterRegistry,
-    featureMetrics: FeatureMetrics,
+    private val featureMetrics: FeatureMetrics,
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
 
     private val log = LoggerFactory.getLogger(FingerprintService::class.java)
 
-    private val fingerprintedCounter = featureMetrics.eventCounter(FINGERPRINT.featureId)
+    private val eventCounter = featureMetrics.eventCounter(FINGERPRINT.featureId)
     private val errorCounter = featureMetrics.errorCounter(FINGERPRINT.featureId)
-    private val timer = featureMetrics.processingTimer(FINGERPRINT.featureId)
 
     fun fingerprint(data: Rtl433Data): Fingerprint {
-        val sample = Timer.start(meterRegistry)
-        try {
-            val result = doFingerprint(data)
-            fingerprintedCounter.increment()
-            return result
-        } catch (ex: Exception) {
-            errorCounter.increment()
-            log.error("Fingerprinting failed: {}", ex.message, ex)
-            throw ex
-        } finally {
-            sample.stop(timer)
+        return featureMetrics.processingTimer(FINGERPRINT.featureId) {
+            try {
+                val rawJson = objectMapper.writeValueAsString(data)
+                val eventFingerprint = fingerprintHash(rawJson)
+                val deviceFingerprint = deviceFingerprint(data)
+                val modelStructure = modelStructure(rawJson)
+                val modelFingerprint = fingerprintHash(modelStructure)
+
+                log.info("Fingerprint -> model = {}, id = {}, eventFingerprint={}, deviceFingerprint='{}', modelFingerprint='{}', modelStructure='{}'",
+                    data.model, data.id, eventFingerprint, deviceFingerprint, modelFingerprint, modelStructure
+                )
+
+                val result = Fingerprint(
+                    eventFingerprint,
+                    deviceFingerprint,
+                    modelFingerprint,
+                    modelStructure
+                )
+
+                eventCounter.increment()
+
+                result
+            } catch (ex: Exception) {
+                errorCounter.increment()
+                log.error("Fingerprinting failed: {}", ex.message, ex)
+                throw ex
+            }
         }
-    }
-
-    private fun doFingerprint(data: Rtl433Data): Fingerprint {
-        val rawJson = objectMapper.writeValueAsString(data)
-        val eventFingerprint = fingerprintHash(rawJson)
-        val deviceFingerprint = deviceFingerprint(data)
-        val modelStructure = modelStructure(rawJson)
-        val modelFingerprint = fingerprintHash(modelStructure)
-
-        log.info("Fingerprint -> model = {}, id = {}, eventFingerprint={}, deviceFingerprint='{}', modelFingerprint='{}', modelStructure='{}'",
-            data.model, data.id, eventFingerprint, deviceFingerprint, modelFingerprint, modelStructure
-        )
-
-        return Fingerprint(
-            eventFingerprint,
-            deviceFingerprint,
-            modelFingerprint,
-            modelStructure
-        )
     }
 
     private fun deviceFingerprint(data: Rtl433Data): String {

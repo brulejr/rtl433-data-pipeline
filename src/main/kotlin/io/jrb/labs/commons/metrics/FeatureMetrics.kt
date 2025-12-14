@@ -35,13 +35,6 @@ class FeatureMetrics(
     private val featureDescriptor: FeatureDescriptor
 ) {
 
-    fun eventCounter(event: String): Counter =
-        Counter.builder("%s_feature_events_total".format(featureDescriptor.application))
-            .description("Total events processed by a feature")
-            .tag("feature", featureDescriptor.featureId)
-            .tag("event", event)
-            .register(registry)
-
     fun errorCounter(stage: String): Counter =
         Counter.builder("%s_feature_errors_total".format(featureDescriptor.application))
             .description("Total errors observed by a feature")
@@ -49,14 +42,32 @@ class FeatureMetrics(
             .tag("stage", stage)
             .register(registry)
 
-    fun processingTimer(stage: String): Timer =
-        Timer.builder("%s_feature_processing_seconds".format(featureDescriptor.application))
+    fun eventCounter(event: String): Counter =
+        Counter.builder("%s_feature_events_total".format(featureDescriptor.application))
+            .description("Total events processed by a feature")
+            .tag("feature", featureDescriptor.featureId)
+            .tag("event", event)
+            .register(registry)
+
+    /**
+     * Generic timing wrapper that starts a Timer.Sample and stops it against
+     * this feature's processing timer after the block executes (success or failure).
+     */
+    fun <T> processingTimer(featureId: String, block: () -> T): T {
+        val timer = Timer.builder("%s_feature_processing_seconds".format(featureDescriptor.application))
             .description("Feature processing latency")
             .tag("feature", featureDescriptor.featureId)
-            .tag("stage", stage)
+            .tag("stage", featureId)
             .publishPercentileHistogram()
             .minimumExpectedValue(Duration.ofMillis(1))
             .maximumExpectedValue(Duration.ofSeconds(5))
             .register(registry)
+        val sample = Timer.start(registry)
+        try {
+            return block()
+        } finally {
+            sample.stop(timer)
+        }
+    }
 
 }
