@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{rtl433_data_pipeline_url}}/mgmt/metrics/rtl433dp_feature_processing_seconds?tag=feature:fingerprint
+  url: {{rtl433_data_pipeline_url}}/mgmt/metrics/rtl433dp_feature_processing_seconds?tag=feature:fingerprint,stage:fingerprint
   body: none
   auth: inherit
 }
 
 params:query {
-  tag: feature:fingerprint
+  tag: feature:fingerprint,stage:fingerprint
 }
 
 settings {

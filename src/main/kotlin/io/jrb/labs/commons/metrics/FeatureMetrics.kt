@@ -58,6 +58,7 @@ class FeatureMetrics(
             .description("Feature processing latency")
             .tag("feature", featureDescriptor.featureId)
             .tag("stage", featureId)
+            .publishPercentiles(0.5, 0.9, 0.95, 0.99)
             .publishPercentileHistogram()
             .minimumExpectedValue(Duration.ofMillis(1))
             .maximumExpectedValue(Duration.ofSeconds(5))

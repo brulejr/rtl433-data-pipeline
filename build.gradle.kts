@@ -65,6 +65,8 @@ dependencies {
 
     implementation("io.github.reactivecircus.cache4k:cache4k:0.14.0")
 
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+
     testImplementation("io.jrb.labs:ksb-spring-boot-starter-reactive-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
