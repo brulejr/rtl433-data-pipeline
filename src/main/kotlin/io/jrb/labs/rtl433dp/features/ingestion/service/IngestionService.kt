@@ -26,19 +26,23 @@ package io.jrb.labs.rtl433dp.features.ingestion.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.commons.service.ControllableService
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.events.RawMessageSource
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.INGESTION
 import io.jrb.labs.rtl433dp.features.ingestion.data.Source
 import io.jrb.labs.rtl433dp.types.Rtl433Data
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import reactor.core.Disposable
 
 class IngestionService(
     private val sources: List<Source>,
-    private val eventBus: PipelineEventBus,
+    private val featureMetrics: FeatureMetrics,
     private val objectMapper: ObjectMapper,
+    private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
 
@@ -46,19 +50,31 @@ class IngestionService(
 
     private val _subscriptions: MutableMap<String, Disposable?> = mutableMapOf()
 
+    private val receivedCounter = featureMetrics.eventCounter("received")
+    private val errorCounter = featureMetrics.errorCounter("ingestion")
+
     override fun onStart() {
         sources.forEach { source ->
             log.info("connecting to source: {}", source.name)
             source.connect()
-            _subscriptions[source.name] = source.subscribe(source.topic) { message ->
-                val rtl433Data = objectMapper.readValue(message, Rtl433Data::class.java)
-                log.info("Data -> model = {}, id = {}, rtl433Data='{}'", rtl433Data.model, rtl433Data.id, rtl433Data)
-                eventBus.send(
-                    PipelineEvent.Rtl433DataReceived(
-                    source = RawMessageSource.valueOf(source.name),
-                    data = rtl433Data
-                ))
-            }
+            _subscriptions[source.name] = source.subscribe(source.topic) { message -> runBlocking {
+                featureMetrics.processingTimer(INGESTION.featureId) {
+                    try {
+                        val rtl433Data = objectMapper.readValue(message, Rtl433Data::class.java)
+                        log.info("Data -> model = {}, id = {}, rtl433Data='{}'", rtl433Data.model, rtl433Data.id, rtl433Data)
+                        eventBus.send(
+                            PipelineEvent.Rtl433DataReceived(
+                                source = RawMessageSource.valueOf(source.name),
+                                data = rtl433Data
+                            ))
+                    } catch (e: Exception) {
+                        errorCounter.increment()
+                        log.error("Error while processing message for ingestion {}", message, e)
+                    } finally {
+                        receivedCounter.increment()
+                    }
+                }
+            }}
         }
     }
 

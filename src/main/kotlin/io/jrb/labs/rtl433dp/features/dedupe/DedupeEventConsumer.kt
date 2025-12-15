@@ -63,10 +63,9 @@ class DedupeEventConsumer(
                 } else {
                     duplicateCounter.increment()
                 }
-            } catch(ex: Exception) {
+            } catch(e: Exception) {
                 errorCounter.increment()
-                log.error("Error while processing dedupe for event {}", event, ex)
-                throw ex
+                log.error("Error while processing event for dedupe {}", event, e)
             } finally {
                 receivedCounter.increment()
             }

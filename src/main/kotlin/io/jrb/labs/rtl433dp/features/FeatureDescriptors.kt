@@ -33,7 +33,7 @@ object FeatureDescriptors {
         featureId = "dedupe",
         displayName = "Deduplication",
         description = "Suppresses duplicate RTL433 messages (e.g. burst repeats).",
-        configPrefix = "rtl433dp.features.fingerprint"
+        configPrefix = "rtl433dp.features.dedupe"
     )
 
     val FINGERPRINT = FeatureDescriptor(
@@ -44,9 +44,18 @@ object FeatureDescriptors {
         configPrefix = "rtl433dp.features.fingerprint"
     )
 
+    val INGESTION = FeatureDescriptor(
+        application = "rtl433dp",
+        featureId = "ingestion",
+        displayName = "Ingestion",
+        description = "Ingests RTL433 data from source.",
+        configPrefix = "rtl433dp.features.ingestion"
+    )
+
     val ALL: List<FeatureDescriptor> = listOf(
         DEDUPE,
-        FINGERPRINT
+        FINGERPRINT,
+        INGESTION
     )
 
 }

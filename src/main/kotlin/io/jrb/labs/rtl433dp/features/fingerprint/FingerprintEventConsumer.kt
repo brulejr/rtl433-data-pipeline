@@ -44,7 +44,7 @@ class FingerprintEventConsumer(
 ) {
 
     private val receivedCounter = featureMetrics.eventCounter("received")
-    private val errorCounter = featureMetrics.errorCounter("dedupe")
+    private val errorCounter = featureMetrics.errorCounter("fingerprint")
 
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataReceived) {
         featureMetrics.processingTimer(FINGERPRINT.featureId) {
@@ -60,7 +60,7 @@ class FingerprintEventConsumer(
                 ))
             } catch(e: Exception) {
                 errorCounter.increment()
-                throw e
+                log.error("Error while processing event for fingerprint {}", event, e)
             } finally {
                 receivedCounter.increment()
             }

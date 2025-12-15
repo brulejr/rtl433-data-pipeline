@@ -26,7 +26,10 @@ package io.jrb.labs.rtl433dp.features.ingestion
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
+import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.INGESTION
 import io.jrb.labs.rtl433dp.features.ingestion.data.Source
 import io.jrb.labs.rtl433dp.features.ingestion.data.mqtt.HiveMqttSource
 import io.jrb.labs.rtl433dp.features.ingestion.service.IngestionService
@@ -41,13 +44,18 @@ import org.springframework.context.annotation.Configuration
 class IngestionConfiguration {
 
     @Bean
+    fun ingestionFeatureMetrics(featureMetricsFactory: FeatureMetricsFactory) =
+        featureMetricsFactory.forFeature(INGESTION)
+
+    @Bean
     fun ingestionService(
         sources: List<Source>,
-        eventBus: PipelineEventBus,
+        ingestionFeatureMetrics: FeatureMetrics,
         objectMapper: ObjectMapper,
+        eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
     ) : IngestionService {
-        return IngestionService(sources, eventBus, objectMapper, systemEventBus)
+        return IngestionService(sources, ingestionFeatureMetrics, objectMapper, eventBus, systemEventBus)
     }
 
     @Bean
