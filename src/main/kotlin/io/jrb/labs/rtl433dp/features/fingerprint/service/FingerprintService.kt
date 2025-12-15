@@ -28,9 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.jrb.labs.commons.eventbus.SystemEventBus
-import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.commons.service.ControllableService
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.FINGERPRINT
 import io.jrb.labs.rtl433dp.features.fingerprint.FingerprintDatafill
 import io.jrb.labs.rtl433dp.types.Fingerprint
 import io.jrb.labs.rtl433dp.types.Rtl433Data
@@ -41,44 +39,28 @@ import java.security.MessageDigest
 class FingerprintService(
     private val datafill: FingerprintDatafill,
     private val objectMapper: ObjectMapper,
-    private val featureMetrics: FeatureMetrics,
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
 
     private val log = LoggerFactory.getLogger(FingerprintService::class.java)
 
-    private val eventCounter = featureMetrics.eventCounter(FINGERPRINT.featureId)
-    private val errorCounter = featureMetrics.errorCounter(FINGERPRINT.featureId)
-
     fun fingerprint(data: Rtl433Data): Fingerprint {
-        return featureMetrics.processingTimer(FINGERPRINT.featureId) {
-            try {
-                val rawJson = objectMapper.writeValueAsString(data)
-                val eventFingerprint = fingerprintHash(rawJson)
-                val deviceFingerprint = deviceFingerprint(data)
-                val modelStructure = modelStructure(rawJson)
-                val modelFingerprint = fingerprintHash(modelStructure)
+        val rawJson = objectMapper.writeValueAsString(data)
+        val eventFingerprint = fingerprintHash(rawJson)
+        val deviceFingerprint = deviceFingerprint(data)
+        val modelStructure = modelStructure(rawJson)
+        val modelFingerprint = fingerprintHash(modelStructure)
 
-                log.info("Fingerprint -> model = {}, id = {}, eventFingerprint={}, deviceFingerprint='{}', modelFingerprint='{}', modelStructure='{}'",
-                    data.model, data.id, eventFingerprint, deviceFingerprint, modelFingerprint, modelStructure
-                )
+        log.info("Fingerprint -> model = {}, id = {}, eventFingerprint={}, deviceFingerprint='{}', modelFingerprint='{}', modelStructure='{}'",
+            data.model, data.id, eventFingerprint, deviceFingerprint, modelFingerprint, modelStructure
+        )
 
-                val result = Fingerprint(
-                    eventFingerprint,
-                    deviceFingerprint,
-                    modelFingerprint,
-                    modelStructure
-                )
-
-                eventCounter.increment()
-
-                result
-            } catch (ex: Exception) {
-                errorCounter.increment()
-                log.error("Fingerprinting failed: {}", ex.message, ex)
-                throw ex
-            }
-        }
+        return Fingerprint(
+            eventFingerprint,
+            deviceFingerprint,
+            modelFingerprint,
+            modelStructure
+        )
     }
 
     private fun deviceFingerprint(data: Rtl433Data): String {

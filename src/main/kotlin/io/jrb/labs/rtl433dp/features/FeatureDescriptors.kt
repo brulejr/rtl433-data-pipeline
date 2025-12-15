@@ -28,6 +28,14 @@ import io.jrb.labs.commons.feature.FeatureDescriptor
 
 object FeatureDescriptors {
 
+    val DEDUPE = FeatureDescriptor(
+        application = "rtl433dp",
+        featureId = "dedupe",
+        displayName = "Deduplication",
+        description = "Suppresses duplicate RTL433 messages (e.g. burst repeats).",
+        configPrefix = "rtl433dp.features.fingerprint"
+    )
+
     val FINGERPRINT = FeatureDescriptor(
         application = "rtl433dp",
         featureId = "fingerprint",
@@ -37,9 +45,8 @@ object FeatureDescriptors {
     )
 
     val ALL: List<FeatureDescriptor> = listOf(
+        DEDUPE,
         FINGERPRINT
     )
-
-    fun byId(feature: String): FeatureDescriptor = ALL.first { it.featureId == feature }
 
 }

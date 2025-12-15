@@ -53,11 +53,11 @@ class FeatureMetrics(
      * Generic timing wrapper that starts a Timer.Sample and stops it against
      * this feature's processing timer after the block executes (success or failure).
      */
-    fun <T> processingTimer(featureId: String, block: () -> T): T {
+    suspend fun <T> processingTimer(stage: String, block: suspend () -> T): T {
         val timer = Timer.builder("%s_feature_processing_seconds".format(featureDescriptor.application))
             .description("Feature processing latency")
             .tag("feature", featureDescriptor.featureId)
-            .tag("stage", featureId)
+            .tag("stage", stage)
             .publishPercentiles(0.5, 0.9, 0.95, 0.99)
             .publishPercentileHistogram()
             .minimumExpectedValue(Duration.ofMillis(1))

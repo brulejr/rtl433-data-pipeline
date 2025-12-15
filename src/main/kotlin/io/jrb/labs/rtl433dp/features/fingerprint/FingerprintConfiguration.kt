@@ -48,18 +48,18 @@ class FingerprintConfiguration {
     @Bean
     fun fingerprintEventConsumer(
         fingerprintService: FingerprintService,
+        fingerprintFeatureMetrics: FeatureMetrics,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) = FingerprintEventConsumer(fingerprintService, eventBus, systemEventBus)
+    ) = FingerprintEventConsumer(fingerprintService, fingerprintFeatureMetrics, eventBus, systemEventBus)
 
     @Bean
     fun fingerprintService(
         datafill: FingerprintDatafill,
         objectMapper: ObjectMapper,
-        fingerprintFeatureMetrics: FeatureMetrics,
         systemEventBus: SystemEventBus
     ) : FingerprintService {
-        return FingerprintService(datafill, objectMapper, fingerprintFeatureMetrics, systemEventBus)
+        return FingerprintService(datafill, objectMapper, systemEventBus)
     }
 
     @Bean

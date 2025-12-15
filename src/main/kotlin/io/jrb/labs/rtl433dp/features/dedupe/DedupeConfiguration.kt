@@ -25,7 +25,10 @@
 package io.jrb.labs.rtl433dp.features.dedupe
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
+import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.DEDUPE
 import io.jrb.labs.rtl433dp.features.dedupe.service.DedupeService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
@@ -38,11 +41,16 @@ import org.springframework.context.annotation.Configuration
 class DedupeConfiguration {
 
     @Bean
+    fun dedupeFeatureMetrics(featureMetricsFactory: FeatureMetricsFactory) =
+        featureMetricsFactory.forFeature(DEDUPE)
+
+    @Bean
     fun dedupeEventConsumer(
         dedupeService: DedupeService,
+        dedupeFeatureMetrics: FeatureMetrics,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) = DedupeEventConsumer(dedupeService, eventBus, systemEventBus)
+    ) = DedupeEventConsumer(dedupeService, dedupeFeatureMetrics, eventBus, systemEventBus)
 
     @Bean
     fun dedupeService(datafill: DedupeDatafill) = DedupeService(datafill)
