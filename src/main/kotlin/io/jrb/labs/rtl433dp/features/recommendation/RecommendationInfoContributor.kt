@@ -25,12 +25,13 @@
 package io.jrb.labs.rtl433dp.features.recommendation
 
 import io.jrb.labs.commons.actuator.FeatureInfoContributor
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.RECOMMENDATION
 
 class RecommendationInfoContributor(
     private val datafill: RecommendationDatafill
 ) : FeatureInfoContributor {
 
-    override val key: String = "recommendation"
+    override val key: String = RECOMMENDATION.featureId
 
     override fun info(): Map<String, Any?> = mapOf(
         "enabled" to datafill.enabled,

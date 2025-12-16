@@ -25,12 +25,13 @@
 package io.jrb.labs.rtl433dp.features.device
 
 import io.jrb.labs.commons.actuator.FeatureInfoContributor
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.DEVICE
 
 class DeviceInfoContributor(
     private val datafill: DeviceDatafill
 ) : FeatureInfoContributor {
 
-    override val key: String = "device"
+    override val key: String = DEVICE.featureId
 
     override fun info(): Map<String, Any?> = mapOf(
         "enabled" to datafill.enabled,

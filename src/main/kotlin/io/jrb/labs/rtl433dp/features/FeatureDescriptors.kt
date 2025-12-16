@@ -68,6 +68,14 @@ object FeatureDescriptors {
         configPrefix = "rtl433dp.features.model"
     )
 
+    val PUBLISHING = FeatureDescriptor(
+        application = "rtl433dp",
+        featureId = "publishing",
+        displayName = "Publishing",
+        description = "Publishes RTL433 data to external systems.",
+        configPrefix = "rtl433dp.features.publishing"
+    )
+
     val RECOMMENDATION = FeatureDescriptor(
         application = "rtl433dp",
         featureId = "recommendation",
@@ -82,6 +90,7 @@ object FeatureDescriptors {
         FINGERPRINT,
         INGESTION,
         MODEL,
+        PUBLISHING,
         RECOMMENDATION
     )
 

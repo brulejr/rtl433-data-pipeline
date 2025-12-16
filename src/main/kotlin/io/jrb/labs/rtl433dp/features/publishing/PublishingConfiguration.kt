@@ -25,7 +25,10 @@
 package io.jrb.labs.rtl433dp.features.publishing
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
+import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.PUBLISHING
 import io.jrb.labs.rtl433dp.features.publishing.data.Target
 import io.jrb.labs.rtl433dp.features.publishing.data.mqtt.HiveMqttTarget
 import io.jrb.labs.rtl433dp.features.publishing.service.PublishingService
@@ -40,18 +43,24 @@ import org.springframework.context.annotation.Configuration
 class PublishingConfiguration {
 
     @Bean
+    fun publishingFeatureMetrics(featureMetricsFactory: FeatureMetricsFactory) =
+        featureMetricsFactory.forFeature(PUBLISHING)
+
+    @Bean
     fun homeAssistantDiscoveryMessageConsumer(
         publishingService: PublishingService,
+        publishingFeatureMetrics: FeatureMetrics,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) = HomeAssistantDiscoveryMessageConsumer(publishingService, eventBus, systemEventBus)
+    ) = HomeAssistantDiscoveryMessageConsumer(publishingService, publishingFeatureMetrics, eventBus, systemEventBus)
 
     @Bean
     fun homeAssistantSensorMessageConsumer(
         publishingService: PublishingService,
+        publishingFeatureMetrics: FeatureMetrics,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) = HomeAssistantSensorMessageConsumer(publishingService, eventBus, systemEventBus)
+    ) = HomeAssistantSensorMessageConsumer(publishingService, publishingFeatureMetrics, eventBus, systemEventBus)
 
     @Bean
     fun publishingService(
