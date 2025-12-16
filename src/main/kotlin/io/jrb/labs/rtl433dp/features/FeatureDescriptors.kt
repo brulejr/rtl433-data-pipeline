@@ -36,6 +36,14 @@ object FeatureDescriptors {
         configPrefix = "rtl433dp.features.dedupe"
     )
 
+    val DEVICE = FeatureDescriptor(
+        application = "rtl433dp",
+        featureId = "device",
+        displayName = "Device",
+        description = "Manages RTL433 device information and metadata.",
+        configPrefix = "rtl433dp.features.device"
+    )
+
     val FINGERPRINT = FeatureDescriptor(
         application = "rtl433dp",
         featureId = "fingerprint",
@@ -70,6 +78,7 @@ object FeatureDescriptors {
 
     val ALL: List<FeatureDescriptor> = listOf(
         DEDUPE,
+        DEVICE,
         FINGERPRINT,
         INGESTION,
         MODEL,
