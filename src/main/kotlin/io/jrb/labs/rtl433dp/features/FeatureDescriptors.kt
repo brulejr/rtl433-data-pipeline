@@ -60,11 +60,20 @@ object FeatureDescriptors {
         configPrefix = "rtl433dp.features.model"
     )
 
+    val RECOMMENDATION = FeatureDescriptor(
+        application = "rtl433dp",
+        featureId = "recommendation",
+        displayName = "Recommendation",
+        description = "Provides recommendations based on RTL433 data analysis.",
+        configPrefix = "rtl433dp.features.recommendation"
+    )
+
     val ALL: List<FeatureDescriptor> = listOf(
         DEDUPE,
         FINGERPRINT,
         INGESTION,
-        MODEL
+        MODEL,
+        RECOMMENDATION
     )
 
 }
