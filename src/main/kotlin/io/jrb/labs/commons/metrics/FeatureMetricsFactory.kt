@@ -22,13 +22,16 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.fingerprint
+package io.jrb.labs.commons.metrics
 
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_FINGERPRINT
-import org.springframework.boot.context.properties.ConfigurationProperties
+import io.jrb.labs.commons.feature.FeatureDescriptor
+import io.micrometer.core.instrument.MeterRegistry
 
-@ConfigurationProperties(prefix = CONFIG_PREFIX_FINGERPRINT)
-data class FingerprintDatafill(
-    val enabled: Boolean = true,
-    val excludedFields: Set<String> = emptySet()
-)
+class FeatureMetricsFactory(
+    private val registry: MeterRegistry
+) {
+
+    fun forFeature(featureDescriptor: FeatureDescriptor): FeatureMetrics =
+        FeatureMetrics(registry, featureDescriptor)
+
+}

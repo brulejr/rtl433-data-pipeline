@@ -25,13 +25,16 @@
 package io.jrb.labs.rtl433dp.features.fingerprint
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.FINGERPRINT
 import io.jrb.labs.rtl433dp.features.fingerprint.service.FingerprintService
 
 class FingerprintEventConsumer(
     private val fingerprintService: FingerprintService,
+    private val featureMetrics: FeatureMetrics,
     private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
 ) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataReceived>(
@@ -40,16 +43,28 @@ class FingerprintEventConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    private val receivedCounter = featureMetrics.eventCounter("received")
+    private val errorCounter = featureMetrics.errorCounter("fingerprint")
+
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataReceived) {
-        val fingerprint = fingerprintService.fingerprint(event.data)
-        eventBus.publish(PipelineEvent.Rtl433DataFingerprinted(
-            source = event.source,
-            data = event.data,
-            eventFingerprint = fingerprint.eventFingerprint,
-            deviceFingerprint = fingerprint.deviceFingerprint,
-            modelFingerprint = fingerprint.modelFingerprint,
-            modelStructure = fingerprint.modelStructure
-        ))
+        featureMetrics.processingTimer(FINGERPRINT.featureId) {
+            try {
+                val fingerprint = fingerprintService.fingerprint(event.data)
+                eventBus.publish(PipelineEvent.Rtl433DataFingerprinted(
+                    source = event.source,
+                    data = event.data,
+                    eventFingerprint = fingerprint.eventFingerprint,
+                    deviceFingerprint = fingerprint.deviceFingerprint,
+                    modelFingerprint = fingerprint.modelFingerprint,
+                    modelStructure = fingerprint.modelStructure
+                ))
+            } catch(e: Exception) {
+                errorCounter.increment()
+                log.error("Error while processing event for fingerprint {}", event, e)
+            } finally {
+                receivedCounter.increment()
+            }
+        }
     }
 
 }

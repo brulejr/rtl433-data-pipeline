@@ -25,13 +25,16 @@
 package io.jrb.labs.rtl433dp.features.dedupe
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.DEDUPE
 import io.jrb.labs.rtl433dp.features.dedupe.service.DedupeService
 
 class DedupeEventConsumer(
     private val dedupeService: DedupeService,
+    private val featureMetrics: FeatureMetrics,
     private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
 ) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataFingerprinted>(
@@ -40,15 +43,32 @@ class DedupeEventConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    private val receivedCounter = featureMetrics.eventCounter("received")
+    private val uniqueCounter = featureMetrics.eventCounter("unique")
+    private val duplicateCounter = featureMetrics.eventCounter("duplicate")
+    private val errorCounter = featureMetrics.errorCounter("dedupe")
+
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataFingerprinted) {
-        if (dedupeService.isUniqueEvent(event)) {
-            eventBus.publish(PipelineEvent.Rtl433DataDeduped(
-                source = event.source,
-                data = event.data,
-                deviceFingerprint = event.deviceFingerprint,
-                modelFingerprint = event.modelFingerprint,
-                modelStructure = event.modelStructure
-            ))
+        featureMetrics.processingTimer(DEDUPE.featureId) {
+            try {
+                if (dedupeService.isUniqueEvent(event)) {
+                    uniqueCounter.increment()
+                    eventBus.publish(PipelineEvent.Rtl433DataDeduped(
+                        source = event.source,
+                        data = event.data,
+                        deviceFingerprint = event.deviceFingerprint,
+                        modelFingerprint = event.modelFingerprint,
+                        modelStructure = event.modelStructure
+                    ))
+                } else {
+                    duplicateCounter.increment()
+                }
+            } catch(e: Exception) {
+                errorCounter.increment()
+                log.error("Error while processing event for dedupe {}", event, e)
+            } finally {
+                receivedCounter.increment()
+            }
         }
     }
 

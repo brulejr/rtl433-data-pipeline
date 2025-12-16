@@ -25,12 +25,13 @@
 package io.jrb.labs.rtl433dp.features.publishing
 
 import io.jrb.labs.commons.actuator.FeatureInfoContributor
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.PUBLISHING
 
 class PublishingInfoContributor(
     private val datafill: PublishingDatafill
 ) : FeatureInfoContributor {
 
-    override val key: String = "publishing"
+    override val key: String = PUBLISHING.featureId
 
     override fun info(): Map<String, Any?> = mapOf(
         "enabled" to datafill.enabled,

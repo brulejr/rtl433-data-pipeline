@@ -25,7 +25,11 @@
 package io.jrb.labs.rtl433dp.features.recommendation
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
+import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_RECOMMENDATION
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.RECOMMENDATION
 import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import io.jrb.labs.rtl433dp.features.recommendation.entity.BucketCount
 import io.jrb.labs.rtl433dp.features.recommendation.entity.Recommendation
@@ -46,20 +50,32 @@ import java.time.Duration
 
 @Configuration
 @ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.recommendation"])
-@ConditionalOnProperty(prefix = "application.recommendation", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = CONFIG_PREFIX_RECOMMENDATION, name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class RecommendationConfiguration(
     private val mongoTemplate: ReactiveMongoTemplate
 ) {
+
+    @Bean
+    fun recommendationFeatureMetrics(featureMetricsFactory: FeatureMetricsFactory) =
+        featureMetricsFactory.forFeature(RECOMMENDATION)
 
     @Bean
     fun recommendationPipelineEventConsumer(
         bucketingService: BucketingService,
         recommendationService: RecommendationService,
         knownDeviceService: KnownDeviceService,
+        recommendationFeatureMetrics: FeatureMetrics,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
     ) : RecommendationEventConsumer {
-        return RecommendationEventConsumer(bucketingService, recommendationService, knownDeviceService, eventBus, systemEventBus)
+        return RecommendationEventConsumer(
+            bucketingService,
+            recommendationService,
+            knownDeviceService,
+            recommendationFeatureMetrics,
+            eventBus,
+            systemEventBus
+        )
     }
 
     @Bean

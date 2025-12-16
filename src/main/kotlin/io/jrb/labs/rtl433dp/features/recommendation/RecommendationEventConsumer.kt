@@ -25,10 +25,12 @@
 package io.jrb.labs.rtl433dp.features.recommendation
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.commons.service.CrudOutcome
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.RECOMMENDATION
 import io.jrb.labs.rtl433dp.features.recommendation.service.BucketingService
 import io.jrb.labs.rtl433dp.features.recommendation.service.KnownDeviceService
 import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
@@ -37,6 +39,7 @@ class RecommendationEventConsumer(
     private val bucketingService: BucketingService,
     private val recommendationService: RecommendationService,
     private val knownDeviceService: KnownDeviceService,
+    private val featureMetrics: FeatureMetrics,
     private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
 ) : AbstractPipelineEventConsumer<PipelineEvent.Rtl433DataDeduped>(
@@ -45,41 +48,53 @@ class RecommendationEventConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    private val receivedCounter = featureMetrics.eventCounter("received")
+    private val errorCounter = featureMetrics.errorCounter("fingerprint")
+
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataDeduped) {
-        val payload = event.data
-        val deviceId = payload.id
-        val propertiesSample = payload.getProperties()
+        featureMetrics.processingTimer(RECOMMENDATION.featureId) {
+            try {
+                val payload = event.data
+                val deviceId = payload.id
+                val propertiesSample = payload.getProperties()
 
-        when (val response = knownDeviceService.findByFingerprint(event.deviceFingerprint)) {
+                when (val response = knownDeviceService.findByFingerprint(event.deviceFingerprint)) {
 
-            // skip over known devices
-            is CrudOutcome.Success -> {
-                val knownDevice = response.data
-                eventBus.publish(PipelineEvent.KnownDevice(
-                    source = event.source,
-                    data = event.data.copy(
-                        name = knownDevice.name,
-                        type = knownDevice.type,
-                        area = knownDevice.area
-                    ),
-                    deviceFingerprint = event.deviceFingerprint,
-                    modelFingerprint = event.modelFingerprint
-                ))
+                    // skip over known devices
+                    is CrudOutcome.Success -> {
+                        val knownDevice = response.data
+                        eventBus.publish(PipelineEvent.KnownDevice(
+                            source = event.source,
+                            data = event.data.copy(
+                                name = knownDevice.name,
+                                type = knownDevice.type,
+                                area = knownDevice.area
+                            ),
+                            deviceFingerprint = event.deviceFingerprint,
+                            modelFingerprint = event.modelFingerprint
+                        ))
+                    }
+
+                    // handle unknown devices
+                    else -> {
+                        val bucketCount = bucketingService.registerObservation(event)
+                        recommendationService.maybeCreateRecommendation(
+                            deviceId = deviceId,
+                            model = payload.model,
+                            deviceFingerprint = event.deviceFingerprint,
+                            modelFingerprint = event.modelFingerprint,
+                            bucketCount = bucketCount,
+                            propertiesSample = propertiesSample
+                        )
+                    }
+
+                }
+            } catch(e: Exception) {
+                errorCounter.increment()
+                log.error("Error while processing event for fingerprint {}", event, e)
+            } finally {
+                receivedCounter.increment()
             }
-
-            // handle unknown devices
-            else -> {
-                val bucketCount = bucketingService.registerObservation(event)
-                recommendationService.maybeCreateRecommendation(
-                    deviceId = deviceId,
-                    model = payload.model,
-                    deviceFingerprint = event.deviceFingerprint,
-                    modelFingerprint = event.modelFingerprint,
-                    bucketCount = bucketCount,
-                    propertiesSample = propertiesSample
-                )
-            }
-
         }
     }
 

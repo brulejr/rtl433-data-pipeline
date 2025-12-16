@@ -26,7 +26,11 @@ package io.jrb.labs.rtl433dp.features.device
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
+import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_DEVICE
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.DEVICE
 import io.jrb.labs.rtl433dp.features.device.service.DeviceService
 import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -36,15 +40,20 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.device"])
-@ConditionalOnProperty(prefix = "application.device", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = CONFIG_PREFIX_DEVICE, name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class DeviceConfiguration {
+
+    @Bean
+    fun deviceFeatureMetrics(featureMetricsFactory: FeatureMetricsFactory) =
+        featureMetricsFactory.forFeature(DEVICE)
 
     @Bean
     fun deviceEventConsumer(
         deviceService: DeviceService,
+        deviceFeatureMetrics: FeatureMetrics,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
-    ) = DeviceEventConsumer(deviceService, eventBus, systemEventBus)
+    ) = DeviceEventConsumer(deviceService, deviceFeatureMetrics, eventBus, systemEventBus)
 
     @Bean
     fun deviceService(

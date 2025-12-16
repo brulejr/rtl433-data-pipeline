@@ -26,7 +26,11 @@ package io.jrb.labs.rtl433dp.features.model
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
+import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_MODEL
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.MODEL
 import io.jrb.labs.rtl433dp.features.model.entity.ModelEntity
 import io.jrb.labs.rtl433dp.features.model.repository.ModelRepository
 import io.jrb.labs.rtl433dp.features.model.service.ModelService
@@ -42,18 +46,23 @@ import org.springframework.data.mongodb.core.index.ReactiveIndexOperations
 
 @Configuration
 @ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.model"])
-@ConditionalOnProperty(prefix = "application.model", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = CONFIG_PREFIX_MODEL, name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class ModelConfiguration(
     private val mongoTemplate: ReactiveMongoTemplate
 ) {
 
     @Bean
-    fun modelPipelineEventConsumer(
+    fun modelFeatureMetrics(featureMetricsFactory: FeatureMetricsFactory) =
+        featureMetricsFactory.forFeature(MODEL)
+
+    @Bean
+    fun modelEventConsumer(
         modelService: ModelService,
+        modelFeatureMetrics: FeatureMetrics,
         eventBus: PipelineEventBus,
         systemEventBus: SystemEventBus
     ) : ModelEventConsumer {
-        return ModelEventConsumer(modelService, eventBus, systemEventBus)
+        return ModelEventConsumer(modelService, modelFeatureMetrics, eventBus, systemEventBus)
     }
 
     @Bean

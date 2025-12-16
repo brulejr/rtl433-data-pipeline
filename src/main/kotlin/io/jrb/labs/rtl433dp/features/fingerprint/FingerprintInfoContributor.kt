@@ -25,12 +25,13 @@
 package io.jrb.labs.rtl433dp.features.fingerprint
 
 import io.jrb.labs.commons.actuator.FeatureInfoContributor
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.FINGERPRINT
 
 class FingerprintInfoContributor(
     private val datafill: FingerprintDatafill
 ) : FeatureInfoContributor {
 
-    override val key: String = "fingerprint"
+    override val key: String = FINGERPRINT.featureId
 
     override fun info(): Map<String, Any?> = mapOf(
         "enabled" to datafill.enabled,

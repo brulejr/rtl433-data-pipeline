@@ -22,13 +22,12 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.rtl433dp.features.fingerprint
+package io.jrb.labs.commons.feature
 
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_FINGERPRINT
-import org.springframework.boot.context.properties.ConfigurationProperties
-
-@ConfigurationProperties(prefix = CONFIG_PREFIX_FINGERPRINT)
-data class FingerprintDatafill(
-    val enabled: Boolean = true,
-    val excludedFields: Set<String> = emptySet()
+data class FeatureDescriptor(
+    val application: String,
+    val featureId: String,
+    val displayName: String,
+    val description: String,
+    val configPrefix: String
 )

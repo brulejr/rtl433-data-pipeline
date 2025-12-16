@@ -25,14 +25,17 @@
 package io.jrb.labs.rtl433dp.features.device
 
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.DEVICE
 import io.jrb.labs.rtl433dp.features.device.entity.HomeAssistantMessage
 import io.jrb.labs.rtl433dp.features.device.service.DeviceService
 
 class DeviceEventConsumer(
     private val deviceService: DeviceService,
+    private val featureMetrics: FeatureMetrics,
     private val eventBus: PipelineEventBus,
     systemEventBus: SystemEventBus
 ) : AbstractPipelineEventConsumer<PipelineEvent.KnownDevice>(
@@ -41,30 +44,42 @@ class DeviceEventConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    private val receivedCounter = featureMetrics.eventCounter("received")
+    private val errorCounter = featureMetrics.errorCounter("fingerprint")
+
     override suspend fun handleEvent(event: PipelineEvent.KnownDevice) {
-        val messages = deviceService.processEvent(event)
-        messages.forEach { message -> when (message) {
-            is HomeAssistantMessage.HomeAssistantDeviceDiscovery -> {
-                eventBus.publish(PipelineEvent.HomeAssistantDiscoveryMessage(
-                    source = event.source,
-                    data = event.data,
-                    deviceFingerprint = event.deviceFingerprint,
-                    modelFingerprint = event.modelFingerprint,
-                    topic = message.topic,
-                    message = message.payload
-                ))
+        featureMetrics.processingTimer(DEVICE.featureId) {
+            try {
+                val messages = deviceService.processEvent(event)
+                messages.forEach { message -> when (message) {
+                    is HomeAssistantMessage.HomeAssistantDeviceDiscovery -> {
+                        eventBus.publish(PipelineEvent.HomeAssistantDiscoveryMessage(
+                            source = event.source,
+                            data = event.data,
+                            deviceFingerprint = event.deviceFingerprint,
+                            modelFingerprint = event.modelFingerprint,
+                            topic = message.topic,
+                            message = message.payload
+                        ))
+                    }
+                    is HomeAssistantMessage.HomeAssistantSensor -> {
+                        eventBus.publish(PipelineEvent.HomeAssistantSensorMessage(
+                            source = event.source,
+                            data = event.data,
+                            deviceFingerprint = event.deviceFingerprint,
+                            modelFingerprint = event.modelFingerprint,
+                            topic = message.topic,
+                            message = message.payload
+                        ))
+                    }
+                }}
+            } catch(e: Exception) {
+                errorCounter.increment()
+                log.error("Error while processing event for device {}", event, e)
+            } finally {
+                receivedCounter.increment()
             }
-            is HomeAssistantMessage.HomeAssistantSensor -> {
-                eventBus.publish(PipelineEvent.HomeAssistantSensorMessage(
-                    source = event.source,
-                    data = event.data,
-                    deviceFingerprint = event.deviceFingerprint,
-                    modelFingerprint = event.modelFingerprint,
-                    topic = message.topic,
-                    message = message.payload
-                ))
-            }
-        }}
+        }
     }
 
 }

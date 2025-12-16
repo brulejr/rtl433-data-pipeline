@@ -24,10 +24,11 @@
 
 package io.jrb.labs.rtl433dp.features.publishing
 
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_PUBLISHING
 import io.jrb.labs.rtl433dp.features.publishing.data.mqtt.MqttTargetDatafill
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "application.publishing")
+@ConfigurationProperties(prefix = CONFIG_PREFIX_PUBLISHING)
 data class PublishingDatafill(
     val enabled: Boolean = true,
     val mqtt: List<MqttTargetDatafill>

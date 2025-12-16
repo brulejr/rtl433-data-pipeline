@@ -23,9 +23,10 @@
  */
 package io.jrb.labs.rtl433dp.features.recommendation
 
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_RECOMMENDATION
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "application.recommendation")
+@ConfigurationProperties(prefix = CONFIG_PREFIX_RECOMMENDATION)
 data class RecommendationDatafill(
     val enabled: Boolean = true,
     val bucketCountThreshold: Long = 30,

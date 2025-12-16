@@ -14,8 +14,10 @@ management:
     web:
       base-path: /mgmt
       exposure:
-        include: health,info
-  health.mongo.enabled: false
+        include: health,info,metrics,prometheus
+  health:
+    show-details: always
+    mongo.enabled: false
 
 management.info:
   build.enabled: true

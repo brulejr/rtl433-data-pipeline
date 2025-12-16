@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonView
 import io.jrb.labs.commons.client.ResourceViews
 import io.jrb.labs.commons.client.ResourceWrapper
 import io.jrb.labs.commons.service.CrudResponse.Companion.crudResponse
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_MODEL
 import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import io.jrb.labs.rtl433dp.features.model.resource.ModelResource
 import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
@@ -43,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/models")
-@ConditionalOnProperty(prefix = "application.model", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = CONFIG_PREFIX_MODEL, name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class ModelController(private val modelService: ModelService) {
 
     @GetMapping("/{modelName}/{fingerprint}")

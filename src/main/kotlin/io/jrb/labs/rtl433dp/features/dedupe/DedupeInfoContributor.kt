@@ -25,12 +25,13 @@
 package io.jrb.labs.rtl433dp.features.dedupe
 
 import io.jrb.labs.commons.actuator.FeatureInfoContributor
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.DEDUPE
 
 class DedupeInfoContributor(
     private val datafill: DedupeDatafill
 ) : FeatureInfoContributor {
 
-    override val key: String = "dedupe"
+    override val key: String = DEDUPE.featureId
 
     override fun info(): Map<String, Any?> = mapOf(
         "enabled" to datafill.enabled,

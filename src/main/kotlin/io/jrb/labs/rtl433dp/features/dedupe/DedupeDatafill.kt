@@ -24,9 +24,10 @@
 
 package io.jrb.labs.rtl433dp.features.dedupe
 
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_DEDUPE
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "application.dedupe")
+@ConfigurationProperties(prefix = CONFIG_PREFIX_DEDUPE)
 data class DedupeDatafill(
     val enabled: Boolean = true,
     val dedupeWindowInMilliseconds: Long = 1000

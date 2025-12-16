@@ -28,17 +28,22 @@ package io.jrb.labs.rtl433dp.ingestion
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEvent
 import io.jrb.labs.commons.eventbus.SystemEventBus
+import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.events.RawMessageSource
-import io.jrb.labs.rtl433dp.features.ingestion.service.IngestionService
 import io.jrb.labs.rtl433dp.features.ingestion.data.Source
 import io.jrb.labs.rtl433dp.features.ingestion.data.SourceType
+import io.jrb.labs.rtl433dp.features.ingestion.service.IngestionService
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import reactor.core.Disposable
 
@@ -76,22 +81,42 @@ class IngestionServiceTest {
         }
     }
 
+    private lateinit var objectMapper: ObjectMapper
+    private lateinit var eventBus: PipelineEventBus
+    private lateinit var systemEventBus: SystemEventBus
+    private lateinit var featureMetrics: FeatureMetrics
+
+    @BeforeEach
+    fun beforeEach() {
+        objectMapper = ObjectMapper()
+        eventBus = PipelineEventBus()
+        systemEventBus = SystemEventBus()
+
+        featureMetrics = mockk<FeatureMetrics>()
+
+        // return relaxed mocks for counters/callers so increments / calls are no-ops
+        every { featureMetrics.eventCounter(any()) } returns mockk(relaxed = true)
+        every { featureMetrics.errorCounter(any()) } returns mockk(relaxed = true)
+
+        // make processingTimer execute the provided block and return its result
+        coEvery { featureMetrics.processingTimer<Any?>(any(), any()) } answers {
+            val block = secondArg<suspend () -> Any?>()
+            runBlocking { block.invoke() }
+        }
+    }
+
     @Test
     fun `start should publish system start, subscribe source and publish pipeline event when message received`() {
         runBlocking {
-            val objectMapper = ObjectMapper()
-            val pipelineBus = PipelineEventBus()
-            val systemBus = SystemEventBus()
-
             val source = TestSource("RTL433", "topic-1", SourceType.MQTT)
-            val service = IngestionService(listOf(source), pipelineBus, objectMapper, systemBus)
+            val service = IngestionService(listOf(source), featureMetrics, objectMapper, eventBus, systemEventBus)
 
             // Listen for first pipeline event (single-shot) and accumulate system events
             val pipelineEventDeferred = CompletableDeferred<PipelineEvent>()
             val systemEvents = mutableListOf<SystemEvent>()
 
-            val pipelineSub = pipelineBus.subscribe<PipelineEvent> { pipelineEventDeferred.complete(it) }
-            val systemSub = systemBus.subscribe<SystemEvent> { systemEvents.add(it) }
+            val pipelineSub = eventBus.subscribe<PipelineEvent> { pipelineEventDeferred.complete(it) }
+            val systemSub = systemEventBus.subscribe<SystemEvent> { systemEvents.add(it) }
 
             service.start()
 
@@ -140,12 +165,8 @@ class IngestionServiceTest {
     @Test
     fun `stop should disconnect sources`() {
         runBlocking {
-            val objectMapper = ObjectMapper()
-            val pipelineBus = PipelineEventBus()
-            val systemBus = SystemEventBus()
-
             val source = TestSource("S2", "topic-2", SourceType.MQTT)
-            val service = IngestionService(listOf(source), pipelineBus, objectMapper, systemBus)
+            val service = IngestionService(listOf(source), featureMetrics, objectMapper, eventBus, systemEventBus)
 
             service.start()
             assertThat(source.connected).isTrue()
