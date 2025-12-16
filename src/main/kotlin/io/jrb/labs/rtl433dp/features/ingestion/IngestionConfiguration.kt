@@ -29,6 +29,7 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_INGESTION
 import io.jrb.labs.rtl433dp.features.FeatureDescriptors.INGESTION
 import io.jrb.labs.rtl433dp.features.ingestion.data.Source
 import io.jrb.labs.rtl433dp.features.ingestion.data.mqtt.HiveMqttSource
@@ -40,7 +41,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.ingestion"])
-@ConditionalOnProperty(prefix = "application.ingestion", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = CONFIG_PREFIX_INGESTION, name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class IngestionConfiguration {
 
     @Bean

@@ -28,12 +28,20 @@ import io.jrb.labs.commons.feature.FeatureDescriptor
 
 object FeatureDescriptors {
 
+    const val CONFIG_PREFIX_DEDUPE = "application.dedupe"
+    const val CONFIG_PREFIX_DEVICE = "application.device"
+    const val CONFIG_PREFIX_FINGERPRINT = "application.fingerprint"
+    const val CONFIG_PREFIX_INGESTION = "application.ingestion"
+    const val CONFIG_PREFIX_MODEL = "application.model"
+    const val CONFIG_PREFIX_PUBLISHING = "application.publishing"
+    const val CONFIG_PREFIX_RECOMMENDATION = "application.recommendation"
+
     val DEDUPE = FeatureDescriptor(
         application = "rtl433dp",
         featureId = "dedupe",
         displayName = "Deduplication",
         description = "Suppresses duplicate RTL433 messages (e.g. burst repeats).",
-        configPrefix = "rtl433dp.features.dedupe"
+        configPrefix = CONFIG_PREFIX_DEDUPE
     )
 
     val DEVICE = FeatureDescriptor(
@@ -41,7 +49,7 @@ object FeatureDescriptors {
         featureId = "device",
         displayName = "Device",
         description = "Manages RTL433 device information and metadata.",
-        configPrefix = "rtl433dp.features.device"
+        configPrefix = CONFIG_PREFIX_DEVICE
     )
 
     val FINGERPRINT = FeatureDescriptor(
@@ -49,7 +57,7 @@ object FeatureDescriptors {
         featureId = "fingerprint",
         displayName = "Fingerprint",
         description = "Generates structural fingerprints for incoming RTL433 data.",
-        configPrefix = "rtl433dp.features.fingerprint"
+        configPrefix = CONFIG_PREFIX_FINGERPRINT
     )
 
     val INGESTION = FeatureDescriptor(
@@ -57,7 +65,7 @@ object FeatureDescriptors {
         featureId = "ingestion",
         displayName = "Ingestion",
         description = "Ingests RTL433 data from source.",
-        configPrefix = "rtl433dp.features.ingestion"
+        configPrefix = CONFIG_PREFIX_INGESTION
     )
 
     val MODEL = FeatureDescriptor(
@@ -65,7 +73,7 @@ object FeatureDescriptors {
         featureId = "model",
         displayName = "Model",
         description = "Extracts model information from RTL433 data.",
-        configPrefix = "rtl433dp.features.model"
+        configPrefix = CONFIG_PREFIX_MODEL
     )
 
     val PUBLISHING = FeatureDescriptor(
@@ -73,7 +81,7 @@ object FeatureDescriptors {
         featureId = "publishing",
         displayName = "Publishing",
         description = "Publishes RTL433 data to external systems.",
-        configPrefix = "rtl433dp.features.publishing"
+        configPrefix = CONFIG_PREFIX_PUBLISHING
     )
 
     val RECOMMENDATION = FeatureDescriptor(
@@ -81,7 +89,7 @@ object FeatureDescriptors {
         featureId = "recommendation",
         displayName = "Recommendation",
         description = "Provides recommendations based on RTL433 data analysis.",
-        configPrefix = "rtl433dp.features.recommendation"
+        configPrefix = CONFIG_PREFIX_RECOMMENDATION
     )
 
     val ALL: List<FeatureDescriptor> = listOf(

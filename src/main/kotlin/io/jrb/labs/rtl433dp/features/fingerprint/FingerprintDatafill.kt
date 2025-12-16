@@ -24,9 +24,10 @@
 
 package io.jrb.labs.rtl433dp.features.fingerprint
 
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_FINGERPRINT
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "application.fingerprint")
+@ConfigurationProperties(prefix = CONFIG_PREFIX_FINGERPRINT)
 data class FingerprintDatafill(
     val enabled: Boolean = true,
     val excludedFields: Set<String> = emptySet()

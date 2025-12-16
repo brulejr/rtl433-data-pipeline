@@ -28,6 +28,7 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_DEDUPE
 import io.jrb.labs.rtl433dp.features.FeatureDescriptors.DEDUPE
 import io.jrb.labs.rtl433dp.features.dedupe.service.DedupeService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -37,7 +38,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.dedupe"])
-@ConditionalOnProperty(prefix = "application.dedupe", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = CONFIG_PREFIX_DEDUPE, name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class DedupeConfiguration {
 
     @Bean

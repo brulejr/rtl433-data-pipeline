@@ -24,10 +24,11 @@
 
 package io.jrb.labs.rtl433dp.features.ingestion
 
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_INGESTION
 import io.jrb.labs.rtl433dp.features.ingestion.data.mqtt.MqttSourceDatafill
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "application.ingestion")
+@ConfigurationProperties(prefix = CONFIG_PREFIX_INGESTION)
 data class IngestionDatafill(
     val enabled: Boolean = true,
     val mqtt: List<MqttSourceDatafill>

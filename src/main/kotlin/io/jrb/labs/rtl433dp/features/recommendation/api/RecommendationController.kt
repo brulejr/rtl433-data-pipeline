@@ -26,6 +26,7 @@ package io.jrb.labs.rtl433dp.features.recommendation.api
 
 import io.jrb.labs.commons.client.ResourceWrapper
 import io.jrb.labs.commons.service.CrudResponse.Companion.crudResponse
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_RECOMMENDATION
 import io.jrb.labs.rtl433dp.features.recommendation.resource.KnownDeviceResource
 import io.jrb.labs.rtl433dp.features.recommendation.resource.PromotionRequest
 import io.jrb.labs.rtl433dp.features.recommendation.resource.RecommendationResource
@@ -41,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/recommendations")
-@ConditionalOnProperty(prefix = "application.recommendation", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = CONFIG_PREFIX_RECOMMENDATION, name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class RecommendationController(
     private val recommendationService: RecommendationService,
     private val knownDeviceService: KnownDeviceService

@@ -24,9 +24,10 @@
 
 package io.jrb.labs.rtl433dp.features.device
 
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_DEVICE
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "application.device")
+@ConfigurationProperties(prefix = CONFIG_PREFIX_DEVICE)
 data class DeviceDatafill(
     val enabled: Boolean = true,
     val configTopic: String = "homeassistant/device/%s/config",

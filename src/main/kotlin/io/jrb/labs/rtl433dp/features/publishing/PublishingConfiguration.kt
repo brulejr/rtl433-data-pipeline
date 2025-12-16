@@ -28,6 +28,7 @@ import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.commons.metrics.FeatureMetricsFactory
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_PUBLISHING
 import io.jrb.labs.rtl433dp.features.FeatureDescriptors.PUBLISHING
 import io.jrb.labs.rtl433dp.features.publishing.data.Target
 import io.jrb.labs.rtl433dp.features.publishing.data.mqtt.HiveMqttTarget
@@ -39,7 +40,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationPropertiesScan( basePackages = ["io.jrb.labs.rtl433dp.features.publishing"])
-@ConditionalOnProperty(prefix = "application.publishing", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = CONFIG_PREFIX_PUBLISHING, name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class PublishingConfiguration {
 
     @Bean
