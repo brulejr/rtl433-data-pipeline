@@ -52,10 +52,19 @@ object FeatureDescriptors {
         configPrefix = "rtl433dp.features.ingestion"
     )
 
+    val MODEL = FeatureDescriptor(
+        application = "rtl433dp",
+        featureId = "model",
+        displayName = "Model",
+        description = "Extracts model information from RTL433 data.",
+        configPrefix = "rtl433dp.features.model"
+    )
+
     val ALL: List<FeatureDescriptor> = listOf(
         DEDUPE,
         FINGERPRINT,
-        INGESTION
+        INGESTION,
+        MODEL
     )
 
 }
