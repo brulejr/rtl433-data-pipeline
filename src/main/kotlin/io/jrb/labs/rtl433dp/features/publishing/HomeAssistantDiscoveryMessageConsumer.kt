@@ -29,8 +29,6 @@ import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.FINGERPRINT
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.PUBLISHING
 import io.jrb.labs.rtl433dp.features.publishing.service.PublishingService
 
 class HomeAssistantDiscoveryMessageConsumer(
