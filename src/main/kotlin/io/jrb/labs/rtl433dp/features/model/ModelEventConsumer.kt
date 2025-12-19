@@ -29,7 +29,6 @@ import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.MODEL
 import io.jrb.labs.rtl433dp.features.model.service.ModelService
 
 class ModelEventConsumer(
@@ -43,11 +42,15 @@ class ModelEventConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    init {
+        featureMetrics.featureStateGauge(this::isRunning)
+    }
+
     private val receivedCounter = featureMetrics.eventCounter("received")
     private val errorCounter = featureMetrics.errorCounter("model'")
 
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataDeduped) {
-        featureMetrics.processingTimer(MODEL.featureId) {
+        featureMetrics.processingTimer(PipelineEvent.Rtl433DataDeduped::class.simpleName!!) {
             try {
                 modelService.processEvent(event)
             } catch(e: Exception) {

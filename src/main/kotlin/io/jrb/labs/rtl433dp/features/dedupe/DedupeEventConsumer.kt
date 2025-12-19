@@ -29,7 +29,6 @@ import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.DEDUPE
 import io.jrb.labs.rtl433dp.features.dedupe.service.DedupeService
 
 class DedupeEventConsumer(
@@ -43,13 +42,17 @@ class DedupeEventConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    init {
+        featureMetrics.featureStateGauge(this::isRunning)
+    }
+
     private val receivedCounter = featureMetrics.eventCounter("received")
     private val uniqueCounter = featureMetrics.eventCounter("unique")
     private val duplicateCounter = featureMetrics.eventCounter("duplicate")
     private val errorCounter = featureMetrics.errorCounter("dedupe")
 
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataFingerprinted) {
-        featureMetrics.processingTimer(DEDUPE.featureId) {
+        featureMetrics.processingTimer(PipelineEvent.Rtl433DataFingerprinted::class.simpleName!!) {
             try {
                 if (dedupeService.isUniqueEvent(event)) {
                     uniqueCounter.increment()

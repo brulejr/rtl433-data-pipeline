@@ -22,12 +22,9 @@
  * SOFTWARE.
  */
 
-package io.jrb.labs.commons.feature
+package io.jrb.labs.commons.metrics
 
-data class FeatureDescriptor(
-    val application: String,
-    val featureId: String,
-    val displayName: String,
-    val description: String,
-    val configPrefix: String
-)
+enum class FeatureState(val value: Int) {
+    DOWN(0),
+    UP(1);
+}

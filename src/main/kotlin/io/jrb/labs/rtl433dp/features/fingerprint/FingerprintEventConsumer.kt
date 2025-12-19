@@ -29,7 +29,6 @@ import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.FINGERPRINT
 import io.jrb.labs.rtl433dp.features.fingerprint.service.FingerprintService
 
 class FingerprintEventConsumer(
@@ -43,11 +42,15 @@ class FingerprintEventConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    init {
+        featureMetrics.featureStateGauge(this::isRunning)
+    }
+
     private val receivedCounter = featureMetrics.eventCounter("received")
     private val errorCounter = featureMetrics.errorCounter("fingerprint")
 
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataReceived) {
-        featureMetrics.processingTimer(FINGERPRINT.featureId) {
+        featureMetrics.processingTimer(PipelineEvent.Rtl433DataReceived::class.simpleName!!) {
             try {
                 val fingerprint = fingerprintService.fingerprint(event.data)
                 eventBus.publish(PipelineEvent.Rtl433DataFingerprinted(

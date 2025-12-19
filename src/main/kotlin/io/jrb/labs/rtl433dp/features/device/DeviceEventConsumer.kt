@@ -29,7 +29,6 @@ import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.DEVICE
 import io.jrb.labs.rtl433dp.features.device.entity.HomeAssistantMessage
 import io.jrb.labs.rtl433dp.features.device.service.DeviceService
 
@@ -44,11 +43,15 @@ class DeviceEventConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    init {
+        featureMetrics.featureStateGauge(this::isRunning)
+    }
+
     private val receivedCounter = featureMetrics.eventCounter("received")
     private val errorCounter = featureMetrics.errorCounter("fingerprint")
 
     override suspend fun handleEvent(event: PipelineEvent.KnownDevice) {
-        featureMetrics.processingTimer(DEVICE.featureId) {
+        featureMetrics.processingTimer(PipelineEvent.KnownDevice::class.simpleName!!) {
             try {
                 val messages = deviceService.processEvent(event)
                 messages.forEach { message -> when (message) {

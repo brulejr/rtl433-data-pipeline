@@ -29,7 +29,7 @@ import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.FINGERPRINT
+import io.jrb.labs.rtl433dp.features.FeatureDescriptors.PUBLISHING
 import io.jrb.labs.rtl433dp.features.publishing.service.PublishingService
 
 class HomeAssistantSensorMessageConsumer(
@@ -43,11 +43,15 @@ class HomeAssistantSensorMessageConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    init {
+        featureMetrics.featureStateGauge(this::isRunning, "sensor")
+    }
+
     private val receivedCounter = featureMetrics.eventCounter("received")
     private val errorCounter = featureMetrics.errorCounter("publishing")
 
     override suspend fun handleEvent(event: PipelineEvent.HomeAssistantSensorMessage) {
-        featureMetrics.processingTimer(FINGERPRINT.featureId) {
+        featureMetrics.processingTimer(PipelineEvent.HomeAssistantSensorMessage::class.simpleName!!) {
             try {
                 publishingService.publish(event.topic, event.message)
             } catch(e: Exception) {

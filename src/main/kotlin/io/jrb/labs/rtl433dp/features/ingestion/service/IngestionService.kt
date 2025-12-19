@@ -31,7 +31,6 @@ import io.jrb.labs.commons.service.ControllableService
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.events.RawMessageSource
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.INGESTION
 import io.jrb.labs.rtl433dp.features.ingestion.data.Source
 import io.jrb.labs.rtl433dp.types.Rtl433Data
 import kotlinx.coroutines.runBlocking
@@ -46,6 +45,10 @@ class IngestionService(
     systemEventBus: SystemEventBus
 ) : ControllableService(systemEventBus) {
 
+    init {
+        featureMetrics.featureStateGauge(this::isRunning)
+    }
+
     private val log = LoggerFactory.getLogger(IngestionService::class.java)
 
     private val _subscriptions: MutableMap<String, Disposable?> = mutableMapOf()
@@ -58,7 +61,7 @@ class IngestionService(
             log.info("connecting to source: {}", source.name)
             source.connect()
             _subscriptions[source.name] = source.subscribe(source.topic) { message -> runBlocking {
-                featureMetrics.processingTimer(INGESTION.featureId) {
+                featureMetrics.processingTimer(source.type.toString()) {
                     try {
                         val rtl433Data = objectMapper.readValue(message, Rtl433Data::class.java)
                         log.info("Data -> model = {}, id = {}, rtl433Data='{}'", rtl433Data.model, rtl433Data.id, rtl433Data)

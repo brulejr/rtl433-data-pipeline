@@ -30,7 +30,6 @@ import io.jrb.labs.commons.service.CrudOutcome
 import io.jrb.labs.rtl433dp.events.AbstractPipelineEventConsumer
 import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.RECOMMENDATION
 import io.jrb.labs.rtl433dp.features.recommendation.service.BucketingService
 import io.jrb.labs.rtl433dp.features.recommendation.service.KnownDeviceService
 import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
@@ -48,11 +47,15 @@ class RecommendationEventConsumer(
     systemEventBus = systemEventBus
 ) {
 
+    init {
+        featureMetrics.featureStateGauge(this::isRunning)
+    }
+
     private val receivedCounter = featureMetrics.eventCounter("received")
     private val errorCounter = featureMetrics.errorCounter("fingerprint")
 
     override suspend fun handleEvent(event: PipelineEvent.Rtl433DataDeduped) {
-        featureMetrics.processingTimer(RECOMMENDATION.featureId) {
+        featureMetrics.processingTimer(PipelineEvent.Rtl433DataDeduped::class.simpleName!!) {
             try {
                 val payload = event.data
                 val deviceId = payload.id
