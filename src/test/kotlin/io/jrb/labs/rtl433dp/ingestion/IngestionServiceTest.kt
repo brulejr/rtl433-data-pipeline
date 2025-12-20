@@ -98,6 +98,9 @@ class IngestionServiceTest {
         every { featureMetrics.eventCounter(any()) } returns mockk(relaxed = true)
         every { featureMetrics.errorCounter(any()) } returns mockk(relaxed = true)
 
+        // stub the featureStateGauge call used in the service init
+        every { featureMetrics.featureStateGauge(any(), any()) } returns mockk(relaxed = true)
+
         // make processingTimer execute the provided block and return its result
         coEvery { featureMetrics.processingTimer<Any?>(any(), any()) } answers {
             val block = secondArg<suspend () -> Any?>()
@@ -177,3 +180,4 @@ class IngestionServiceTest {
     }
 
 }
+
