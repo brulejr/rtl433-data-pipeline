@@ -50,7 +50,11 @@ data class Recommendation(
 
     val propertiesSample: Map<String, Any?> = emptyMap(),
 
-    val promoted: Boolean = false
+    val promoted: Boolean = false,
+
+    val signalStrengthDbm: Double? = null,
+
+    val weight: Double = 1.0
 
 ) {
 
@@ -60,7 +64,9 @@ data class Recommendation(
             model = this.model,
             deviceFingerprint = this.deviceFingerprint,
             modelFingerprint = this.modelFingerprint,
-            bucketCount = this.bucketCount
+            bucketCount = this.bucketCount,
+            signalStrengthDbm = this.signalStrengthDbm,
+            weight = this.weight
         )
     }
 

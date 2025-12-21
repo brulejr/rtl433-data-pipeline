@@ -44,6 +44,12 @@ data class RecommendationResource(
     val modelFingerprint: String,
 
     @field:JsonView(ResourceViews.List::class)
-    val bucketCount: Long
+    val bucketCount: Long,
+
+    @field:JsonView(ResourceViews.List::class)
+    val signalStrengthDbm: Double?,
+
+    @field:JsonView(ResourceViews.List::class)
+    val weight: Double
 
 )
