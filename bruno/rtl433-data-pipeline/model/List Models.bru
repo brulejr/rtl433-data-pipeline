@@ -1,11 +1,11 @@
 meta {
-  name: Get Recommendations
+  name: List Models
   type: http
-  seq: 2
+  seq: 7
 }
 
 get {
-  url: {{rtl433_data_pipeline_url}}/api/v1/recommendations
+  url: {{rtl433_data_pipeline_url}}/api/v1/models
   body: none
   auth: inherit
 }
