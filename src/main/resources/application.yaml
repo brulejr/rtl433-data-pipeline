@@ -31,6 +31,12 @@ logging.level:
 spring.data.mongodb:
   uri: ${MONGODB_URL}
 
+application:
+  security:
+    client-id: rtl433dp-api
+    jwt:
+      issuer-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}
+
 application.ingestion:
   enabled: true
   mqtt:

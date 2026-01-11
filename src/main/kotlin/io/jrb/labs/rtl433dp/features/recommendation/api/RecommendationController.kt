@@ -32,8 +32,10 @@ import io.jrb.labs.rtl433dp.features.recommendation.resource.PromotionRequest
 import io.jrb.labs.rtl433dp.features.recommendation.resource.RecommendationResource
 import io.jrb.labs.rtl433dp.features.recommendation.service.KnownDeviceService
 import io.jrb.labs.rtl433dp.features.recommendation.service.RecommendationService
+import io.jrb.labs.rtl433dp.security.Permissions
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -49,6 +51,7 @@ class RecommendationController(
 ) {
 
     @GetMapping
+    @PreAuthorize("hasAuthority('${Permissions.RECOMMENDATION_LIST}')")
     suspend fun listCandidates(): ResponseEntity<ResourceWrapper<List<RecommendationResource>>> {
         return crudResponse(
             actionFn = { recommendationService.listCandidates() }
@@ -56,6 +59,7 @@ class RecommendationController(
     }
 
     @PostMapping("/promote")
+    @PreAuthorize("hasAuthority('${Permissions.RECOMMENDATION_PROMOTE}')")
     suspend fun promoteRecommendation(
         @RequestBody promotionRequest: PromotionRequest
     ): ResponseEntity<ResourceWrapper<KnownDeviceResource>> {

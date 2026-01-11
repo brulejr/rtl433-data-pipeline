@@ -29,8 +29,10 @@ import io.jrb.labs.commons.service.CrudResponse.Companion.crudResponse
 import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_RECOMMENDATION
 import io.jrb.labs.rtl433dp.features.recommendation.resource.KnownDeviceResource
 import io.jrb.labs.rtl433dp.features.recommendation.service.KnownDeviceService
+import io.jrb.labs.rtl433dp.security.Permissions
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -43,6 +45,7 @@ class KnownDeviceController(
 ) {
 
     @GetMapping
+    @PreAuthorize("hasAuthority('${Permissions.KNOWNDEVICE_LIST}')")
     suspend fun listAll(): ResponseEntity<ResourceWrapper<List<KnownDeviceResource>>> {
         return crudResponse(
             actionFn = { knownDeviceService.retrieveKnownDeviceResources() }

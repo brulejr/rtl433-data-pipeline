@@ -35,6 +35,7 @@ object FeatureDescriptors {
     const val CONFIG_PREFIX_MODEL = "application.model"
     const val CONFIG_PREFIX_PUBLISHING = "application.publishing"
     const val CONFIG_PREFIX_RECOMMENDATION = "application.recommendation"
+    const val CONFIG_PREFIX_SECURITY = "application.security"
 
     val DEDUPE = FeatureDescriptor(
         application = "rtl433dp",

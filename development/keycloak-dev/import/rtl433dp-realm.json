@@ -1,0 +1,173 @@
+{
+  "realm": "rtl433dp",
+  "enabled": true,
+
+  "clients": [
+    {
+      "clientId": "rtl433dp-api",
+      "name": "rtl433-data-pipeline API",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+
+      "fullScopeAllowed": false,
+
+      "defaultClientScopes": ["profile", "email", "rtl433dp-permissions"],
+      "optionalClientScopes": ["offline_access"]
+    }
+  ],
+
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "composite": true,
+        "composites": {
+          "client": {
+            "rtl433dp-api": [
+              "model:get",
+              "model:list",
+              "model:search",
+              "model:update",
+              "knowndevice:list",
+              "recommendation:list",
+              "recommendation:promote",
+              "actuator:read"
+            ]
+          }
+        }
+      },
+      {
+        "name": "sysadm",
+        "composite": true,
+        "composites": {
+          "client": {
+            "rtl433dp-api": [
+              "model:get",
+              "model:list",
+              "model:search",
+              "model:update",
+              "knowndevice:list",
+              "recommendation:list",
+              "recommendation:promote",
+              "actuator:read",
+              "actuator:admin"
+            ]
+          }
+        }
+      },
+      {
+        "name": "user",
+        "composite": true,
+        "composites": {
+          "client": {
+            "rtl433dp-api": [
+              "model:get",
+              "model:list",
+              "model:search",
+              "knowndevice:list",
+              "recommendation:list",
+              "actuator:read"
+            ]
+          }
+        }
+      }
+    ],
+
+    "client": {
+      "rtl433dp-api": [
+        { "name": "model:get" },
+        { "name": "model:list" },
+        { "name": "model:search" },
+        { "name": "model:update" },
+        { "name": "knowndevice:list" },
+        { "name": "recommendation:list" },
+        { "name": "recommendation:promote" },
+        { "name": "actuator:read" },
+        { "name": "actuator:admin" }
+      ]
+    }
+  },
+
+  "clientScopes": [
+    {
+      "name": "rtl433dp-permissions",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "permissions",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "usermodel.clientRoleMapping.clientId": "rtl433dp-api",
+            "claim.name": "permissions",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+
+  "users": [
+    {
+      "username": "testuser",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "testuser@example.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testuser",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"]
+    },
+    {
+      "username": "testadmin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "Admin",
+      "email": "testadmin@example.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testadmin",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["admin"]
+    },
+    {
+      "username": "testsysadm",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "Sysadm",
+      "email": "testsysadm@example.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testsysadm",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["sysadm"]
+    }
+  ]
+}

@@ -63,11 +63,16 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.security:spring-security-oauth2-jose")
+
     implementation("io.github.reactivecircus.cache4k:cache4k:0.14.0")
 
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     testImplementation("io.jrb.labs:ksb-spring-boot-starter-reactive-test")
+    testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

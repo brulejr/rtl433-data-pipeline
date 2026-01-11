@@ -33,8 +33,10 @@ import io.jrb.labs.rtl433dp.features.model.service.ModelService
 import io.jrb.labs.rtl433dp.features.model.resource.ModelResource
 import io.jrb.labs.rtl433dp.features.model.resource.Rtl433Search
 import io.jrb.labs.rtl433dp.features.model.resource.SensorsUpdateRequest
+import io.jrb.labs.rtl433dp.security.Permissions
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -49,6 +51,7 @@ class ModelController(private val modelService: ModelService) {
 
     @GetMapping("/{modelName}/{fingerprint}")
     @JsonView(ResourceViews.Details::class)
+    @PreAuthorize("hasAuthority('${Permissions.MODEL_GET}')")
     suspend fun getModel(
         @PathVariable modelName: String,
         @PathVariable fingerprint: String
@@ -60,6 +63,7 @@ class ModelController(private val modelService: ModelService) {
 
     @GetMapping
     @JsonView(ResourceViews.List::class)
+    @PreAuthorize("hasAuthority('${Permissions.MODEL_LIST}')")
     suspend fun retrieve(): ResponseEntity<ResourceWrapper<List<ModelResource>>> {
         return crudResponse(
             actionFn = { modelService.retrieveModelResources() }
@@ -68,6 +72,7 @@ class ModelController(private val modelService: ModelService) {
 
     @PostMapping("/search")
     @JsonView(ResourceViews.List::class)
+    @PreAuthorize("hasAuthority('${Permissions.MODEL_SEARCH}')")
     suspend fun search(@RequestBody rtl433Search: Rtl433Search): ResponseEntity<ResourceWrapper<List<ModelResource>>> {
         return crudResponse(
             actionFn = { modelService.searchModelResources(rtl433Search) }
@@ -75,6 +80,7 @@ class ModelController(private val modelService: ModelService) {
     }
 
     @PostMapping("/{modelName}/{fingerprint}/sensors")
+    @PreAuthorize("hasAuthority('${Permissions.MODEL_UPDATE}')")
     suspend fun updateSensors(
         @PathVariable modelName: String,
         @PathVariable fingerprint: String,
