@@ -404,6 +404,14 @@ See [`LICENSE`](./LICENSE) for the full text.
 
 ---
 
+## Resources
+- [Home Assistant MQTT Discovery](https://www.home-assistant.io/docs/mqtt/discovery/)
+- [rtl_433](https://github.com/merbanan/rtl_433) – the core SDR decoder this pipeline is built around.
+- [Home Assistant / MQTT ecosystem](https://www.home-assistant.io/integrations/mqtt/) for patterns and inspiration.
+- [io.jrb.labs](https://github.com/jrbalsas/io.jrb.labs) family of services and libraries that this project is designed to complement.
+
+---
+
 ## Acknowledgements
 
 - [`rtl_433`](https://github.com/merbanan/rtl_433) – the core SDR decoder this pipeline is built around.
