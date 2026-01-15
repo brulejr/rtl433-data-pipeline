@@ -17,7 +17,49 @@
 
       "defaultClientScopes": ["profile", "email", "rtl433dp-permissions"],
       "optionalClientScopes": ["offline_access"]
+    },
+
+    {
+      "clientId": "rtl433dp-ui",
+      "name": "RTL433DP Console (SPA)",
+      "enabled": true,
+      "protocol": "openid-connect",
+
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+
+      "fullScopeAllowed": true,
+
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "baseUrl": "http://localhost:5173",
+      "rootUrl": "http://localhost:5173",
+
+      "defaultClientScopes": ["profile", "email", "rtl433dp-permissions"],
+      "optionalClientScopes": ["offline_access"],
+
+      "protocolMappers": [
+        {
+          "name": "permissions",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "usermodel.clientRoleMapping.clientId": "rtl433dp-api",
+            "claim.name": "permissions",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
     }
+
   ],
 
   "roles": {

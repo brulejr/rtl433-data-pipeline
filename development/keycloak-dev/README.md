@@ -44,6 +44,8 @@ In summary, the following users are created:
 | testuser   | testuser   | user   |
 | testsysadm | testsysadm | sysadm |
 
+The roles assigned to the users have the following permissions:
+
 | Permission               | Role - sysadm | Role - admin | Role - user | 
 |:-------------------------|:-------------:|:------------:|:-----------:|
 | `model:get`              |       X       |      X       |      X      |
@@ -58,6 +60,16 @@ In summary, the following users are created:
 
 Note that role are an internal concept of KeyCloak and are not exposed to the application. Only permissions are granted 
 based on the roles assigned to the user.
+
+## Additional Manual Setup
+The following steps are required to configure the OAuth 2.0 client for the application.
+
+- Navigate to the **Clients** panel. Select the **rtl433dp-api** client. Set the following settings:
+
+| Field               | Value                          |
+|:--------------------|:-------------------------------|
+| Valid redirect URIs | http://localhost:5001/callback |
+| Web origins         | http://localhost:5001          |
 
 # Bruno OAuth 2.0 Configuration
 The following configuration is required for the OAuth 2.0 authentication flow.

@@ -24,17 +24,26 @@
 
 package io.jrb.labs.rtl433dp.security
 
-import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_SECURITY
-import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.security.oauth2.core.OAuth2Error
+import org.springframework.security.oauth2.core.OAuth2TokenValidator
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult
+import org.springframework.security.oauth2.jwt.Jwt
 
-@ConfigurationProperties(prefix = CONFIG_PREFIX_SECURITY)
-data class SecurityDatafill(
-    val clientIds: Set<String> = setOf("rtl433dp-api", "rtl433dp-ui"),
-    val jwt: Jwt = Jwt()
-) {
+class AzpAllowListValidator(
+    private val allowedAzp: Set<String>
+) : OAuth2TokenValidator<Jwt> {
 
-    data class Jwt(
-        val issuerUri: String = ""
-    )
-
+    override fun validate(token: Jwt): OAuth2TokenValidatorResult {
+        val azp = token.claims["azp"] as? String
+        return if (azp != null && allowedAzp.contains(azp)) {
+            OAuth2TokenValidatorResult.success()
+        } else {
+            val err = OAuth2Error(
+                "invalid_token",
+                "Invalid azp: expected one of ${allowedAzp.joinToString()}, got ${azp ?: "null"}",
+                "https://tools.ietf.org/html/rfc6750#section-3.1"
+            )
+            OAuth2TokenValidatorResult.failure(err)
+        }
+    }
 }

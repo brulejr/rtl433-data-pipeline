@@ -53,6 +53,7 @@ class SecurityConfig {
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
+            .cors { }
             .csrf { it.disable() }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
@@ -94,7 +95,7 @@ class SecurityConfig {
         val decoder = withIssuerLocation(issuer).build()
 
         val issuerValidator = JwtValidators.createDefaultWithIssuer(issuer)
-        val azpValidator = AzpValidator(datafill.clientId) // audience field now means “expected clientId”
+        val azpValidator = AzpAllowListValidator(datafill.clientIds) // audience field now means “expected clientId”
 
         decoder.setJwtValidator(DelegatingOAuth2TokenValidator(issuerValidator, azpValidator))
         return decoder
