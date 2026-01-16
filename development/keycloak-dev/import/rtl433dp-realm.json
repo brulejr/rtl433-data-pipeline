@@ -2,6 +2,24 @@
   "realm": "rtl433dp",
   "enabled": true,
 
+  "accessTokenLifespan": 300,
+
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 28800,
+
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": true,
+  "offlineSessionMaxLifespan": 7776000,
+
+  "clientSessionIdleTimeout": 1800,
+  "clientSessionMaxLifespan": 28800,
+
+  "clientOfflineSessionIdleTimeout": 2592000,
+  "clientOfflineSessionMaxLifespan": 7776000,
+
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+
   "clients": [
     {
       "clientId": "rtl433dp-api",
@@ -59,11 +77,12 @@
         }
       ]
     }
-
   ],
 
   "roles": {
     "realm": [
+      { "name": "offline_access" },
+
       {
         "name": "admin",
         "composite": true,
@@ -177,7 +196,7 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["user"]
+      "realmRoles": ["user", "offline_access"]
     },
     {
       "username": "testadmin",
@@ -193,7 +212,7 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["admin"]
+      "realmRoles": ["admin", "offline_access"]
     },
     {
       "username": "testsysadm",
@@ -209,7 +228,7 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["sysadm"]
+      "realmRoles": ["sysadm", "offline_access"]
     }
   ]
 }
