@@ -1,0 +1,59 @@
+services:
+
+  keycloak-db:
+    image: postgres:16-alpine
+    container_name: keycloak-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD_FILE: "/run/secrets/postgres_db_passwd"
+    secrets:
+      - postgres_db_passwd
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+    networks:
+      - keycloak-net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.0
+    container_name: keycloak
+    restart: unless-stopped
+    depends_on:
+      - keycloak-db
+    entrypoint: ["/bin/sh", "/opt/keycloak-entrypoint.sh"]
+    ports:
+      - "8181:8080"
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-db
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_LOG_LEVEL: "INFO"
+    secrets:
+      - keycloak_admin_userid
+      - keycloak_admin_passwd
+      - postgres_db_passwd
+    volumes:
+      - ./realm:/opt/keycloak/data/import:ro
+      - ./keycloak-entrypoint.sh:/opt/keycloak-entrypoint.sh:ro
+    networks:
+      - keycloak-net
+
+secrets:
+  keycloak_admin_userid:
+    file: secrets/keycloak_admin_userid.txt
+  keycloak_admin_passwd:
+    file: secrets/keycloak_admin_passwd.txt
+  postgres_db_passwd:
+    file: secrets/postgres_db_passwd.txt
+
+volumes:
+  keycloak_db_data:
+
+networks:
+  keycloak-net:

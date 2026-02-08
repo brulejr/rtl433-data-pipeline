@@ -1,0 +1,234 @@
+{
+  "realm": "rtl433dp",
+  "enabled": true,
+
+  "accessTokenLifespan": 300,
+
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 28800,
+
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": true,
+  "offlineSessionMaxLifespan": 7776000,
+
+  "clientSessionIdleTimeout": 1800,
+  "clientSessionMaxLifespan": 28800,
+
+  "clientOfflineSessionIdleTimeout": 2592000,
+  "clientOfflineSessionMaxLifespan": 7776000,
+
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+
+  "clients": [
+    {
+      "clientId": "rtl433dp-api",
+      "name": "rtl433-data-pipeline API",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+
+      "fullScopeAllowed": false,
+
+      "defaultClientScopes": ["profile", "email", "rtl433dp-permissions"],
+      "optionalClientScopes": ["offline_access"]
+    },
+
+    {
+      "clientId": "rtl433dp-ui",
+      "name": "RTL433DP Console (SPA)",
+      "enabled": true,
+      "protocol": "openid-connect",
+
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+
+      "fullScopeAllowed": true,
+
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "baseUrl": "http://localhost:5173",
+      "rootUrl": "http://localhost:5173",
+
+      "defaultClientScopes": ["profile", "email", "rtl433dp-permissions"],
+      "optionalClientScopes": ["offline_access"],
+
+      "protocolMappers": [
+        {
+          "name": "permissions",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "usermodel.clientRoleMapping.clientId": "rtl433dp-api",
+            "claim.name": "permissions",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+
+  "roles": {
+    "realm": [
+      { "name": "offline_access" },
+
+      {
+        "name": "admin",
+        "composite": true,
+        "composites": {
+          "client": {
+            "rtl433dp-api": [
+              "model:get",
+              "model:list",
+              "model:search",
+              "model:update",
+              "knowndevice:list",
+              "recommendation:list",
+              "recommendation:promote",
+              "actuator:read"
+            ]
+          }
+        }
+      },
+      {
+        "name": "sysadm",
+        "composite": true,
+        "composites": {
+          "client": {
+            "rtl433dp-api": [
+              "model:get",
+              "model:list",
+              "model:search",
+              "model:update",
+              "knowndevice:list",
+              "recommendation:list",
+              "recommendation:promote",
+              "actuator:read",
+              "actuator:admin"
+            ]
+          }
+        }
+      },
+      {
+        "name": "user",
+        "composite": true,
+        "composites": {
+          "client": {
+            "rtl433dp-api": [
+              "model:get",
+              "model:list",
+              "model:search",
+              "knowndevice:list",
+              "recommendation:list",
+              "actuator:read"
+            ]
+          }
+        }
+      }
+    ],
+
+    "client": {
+      "rtl433dp-api": [
+        { "name": "model:get" },
+        { "name": "model:list" },
+        { "name": "model:search" },
+        { "name": "model:update" },
+        { "name": "knowndevice:list" },
+        { "name": "recommendation:list" },
+        { "name": "recommendation:promote" },
+        { "name": "actuator:read" },
+        { "name": "actuator:admin" }
+      ]
+    }
+  },
+
+  "clientScopes": [
+    {
+      "name": "rtl433dp-permissions",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "permissions",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "usermodel.clientRoleMapping.clientId": "rtl433dp-api",
+            "claim.name": "permissions",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+
+  "users": [
+    {
+      "username": "testuser",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "testuser@example.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testuser",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user", "offline_access"]
+    },
+    {
+      "username": "testadmin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "Admin",
+      "email": "testadmin@example.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testadmin",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["admin", "offline_access"]
+    },
+    {
+      "username": "testsysadm",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "Sysadm",
+      "email": "testsysadm@example.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testsysadm",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["sysadm", "offline_access"]
+    }
+  ]
+}
