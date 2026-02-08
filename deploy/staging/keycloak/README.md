@@ -10,7 +10,7 @@ Place the contents of this directory in `/opt/docker/keycloak` on the staging se
 Create the `secret` directory, and add the following files with the appropriate values:
 - `keycloak_admin_userid.txt`: The username of the KeyCloak administrator user
   ```bash
-    echo "admin" > secret/keycloak_admin_userid.txt
+    echo "admin" > secrets/keycloak_admin_userid.txt
   ```
 - `keycloak_admin_passwd.txt`: The password of the KeyCloak administrator user
   ```bash
