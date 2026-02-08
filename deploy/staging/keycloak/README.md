@@ -3,6 +3,24 @@ Keycloak is an open source Identity and Access Management solution targeted towa
 
 A staging version server is provided in this repository. It should be run on a Linux staging server using Docker Compose.
 
+## Setup Instructions
+
+Place the contents of this directory in `/opt/docker/keycloak` on the staging server.
+
+Create the `secret` directory, and add the following files with the appropriate values:
+- `keycloak_admin_userid.txt`: The username of the KeyCloak administrator user
+  ```bash
+    echo "admin" > secret/keycloak_admin_userid.txt
+  ```
+- `keycloak_admin_passwd.txt`: The password of the KeyCloak administrator user
+  ```bash
+    openssl rand -base64 36 | tr -d '\n' > secrets/keycloak_admin_passwd.txt
+  ```
+- `postgres_db_passwd.txt`: The database password for the PostgreSQL database used by KeyCloak
+  ```bash
+    openssl rand -base64 36 | tr -d '\n' > secrets/postgres_db_passwd.txt
+  ```
+
 # Running the server
 To start the development service, run the following command from this directory:
 ```shell
