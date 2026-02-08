@@ -44,7 +44,7 @@ docker logs -f keycloak
 
 # Administration Console
 The administration console can be accessed at the following URL:
-- http://localhost:8181/auth/admin
+- http://{{staging}}:8181/auth/admin
 
 The administrative credentials are:
 - Username: `cat secret/keycloak_admin_userid.txt`
@@ -84,23 +84,23 @@ The following steps are required to configure the OAuth 2.0 client for the appli
 
 - Navigate to the **Clients** panel. Select the **rtl433dp-api** client. Set the following settings:
 
-| Field               | Value                            |
-|:--------------------|:---------------------------------|
-| Valid redirect URIs | http://{{staging}}:5001/callback |
-| Web origins         | http://{{staging}}:5001            |
+| Field               | Value                             |
+|:--------------------|:----------------------------------|
+| Valid redirect URIs | http://{{staging}}:5001/callback  |
+| Web origins         | http://{{staging}}:5001           |
 
 # Bruno OAuth 2.0 Configuration
 The following configuration is required for the OAuth 2.0 authentication flow.
 
-| Field | Value                                                                 |
-|:------|:----------------------------------------------------------------------|
-| Grant Type | `Authorization Code`                                                  |
-| Callback URL | `{{rtl433_data_pipeline_url}}/login/oauth2/code/keycloak`                |
-| Authorization URI | `{{keycloak_url}}/auth/realms/rtl433dp/protocol/openid-connect/auth`  |
-| Access Token URL | `{{keycloak_url}}/auth/realms/rtl433dp/protocol/openid-connect/token` |
-| Client ID | `rtl433dp-api`                                                        |
-| Client Secret | `<super-secret>`                                                       |
-| Add Credentials to | `Base Auth Header`                                                |
+| Field | Value                                                                   |
+|:------|:------------------------------------------------------------------------|
+| Grant Type | `Authorization Code`                                                    |
+| Callback URL | `{{rtl433_data_pipeline_url}}/login/oauth2/code/keycloak`               |
+| Authorization URI | `{{keycloak_url}}/auth/realms/rtl433dp/protocol/openid-connect/auth`    |
+| Access Token URL | `{{keycloak_url}}/auth/realms/rtl433dp/protocol/openid-connect/token`   |
+| Client ID | `rtl433dp-api`                                                          |
+| Client Secret | `<super-secret>`                                                        |
+| Add Credentials to | `Base Auth Header`                                                      |
 
 Note that both the `{{rtl433-data-pipeline-url}}` and `{{keycloak-url}}` variables are defined in the selected environment.
 
