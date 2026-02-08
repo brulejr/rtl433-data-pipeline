@@ -57,7 +57,7 @@ class PublishingService(
     fun publish(topic: String, message: String) {
         try {
             targets.forEach { target ->
-                log.info("Publishing -> target = {}, topic = {}, message = {}", target.name, topic, message)
+                log.debug("Publishing -> target = {}, topic = {}, message = {}", target.name, topic, message)
                 target.publish(topic, message)
             }
         } catch(e: Exception) {

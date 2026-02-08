@@ -64,7 +64,7 @@ class DeviceService(
                 val sensors = model.data.sensors ?: emptyList()
                 val deviceDiscovery = toHomeAssistantDeviceDiscovery(event.data, sensors)
                 val deviceData = toHomeAssistantSensor(event.data, sensors)
-                log.info("Device -> deviceData = {}, deviceDiscovery = {}", deviceData, deviceDiscovery)
+                log.debug("Device -> deviceData = {}, deviceDiscovery = {}", deviceData, deviceDiscovery)
                 return listOf(deviceDiscovery, deviceData)
             }
             else -> {

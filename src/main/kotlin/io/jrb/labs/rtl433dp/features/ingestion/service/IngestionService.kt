@@ -64,7 +64,7 @@ class IngestionService(
                 featureMetrics.processingTimer(source.type.toString()) {
                     try {
                         val rtl433Data = objectMapper.readValue(message, Rtl433Data::class.java)
-                        log.info("Data -> model = {}, id = {}, rtl433Data='{}'", rtl433Data.model, rtl433Data.id, rtl433Data)
+                        log.debug("Data -> model = {}, id = {}, rtl433Data='{}'", rtl433Data.model, rtl433Data.id, rtl433Data)
                         eventBus.send(
                             PipelineEvent.Rtl433DataReceived(
                                 source = RawMessageSource.valueOf(source.name),

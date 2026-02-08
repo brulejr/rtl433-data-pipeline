@@ -51,7 +51,7 @@ class FingerprintService(
         val modelStructure = modelStructure(rawJson)
         val modelFingerprint = fingerprintHash(modelStructure)
 
-        log.info("Fingerprint -> model = {}, id = {}, eventFingerprint={}, deviceFingerprint='{}', modelFingerprint='{}', modelStructure='{}'",
+        log.debug("Fingerprint -> model = {}, id = {}, eventFingerprint={}, deviceFingerprint='{}', modelFingerprint='{}', modelStructure='{}'",
             data.model, data.id, eventFingerprint, deviceFingerprint, modelFingerprint, modelStructure
         )
 

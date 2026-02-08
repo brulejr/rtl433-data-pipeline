@@ -50,7 +50,7 @@ class DedupeService(datafill: DedupeDatafill) {
             true
         }
 
-        log.info("Dedupe -> model = {}, id = {}, unique={}, deviceKey='{}', signature='{}'",
+        log.debug("Dedupe -> model = {}, id = {}, unique={}, deviceKey='{}', signature='{}'",
             event.data.model, event.data.id, unique, deviceKey, signature
         )
 
