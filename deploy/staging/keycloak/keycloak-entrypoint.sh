@@ -25,9 +25,8 @@
 
 set -eu
 
-export KEYCLOAK_ADMIN="$(cat /run/secrets/keycloak_admin_userid)"
-export KEYCLOAK_ADMIN_PASSWORD="$(cat /run/secrets/keycloak_admin_passwd)"
+export KC_BOOTSTRAP_ADMIN_USERNAME="$(cat /run/secrets/keycloak_admin_userid)"
+export KC_BOOTSTRAP_ADMIN_PASSWORD="$(cat /run/secrets/keycloak_admin_passwd)"
 export KC_DB_PASSWORD="$(cat /run/secrets/postgres_db_passwd)"
 
 exec /opt/keycloak/bin/kc.sh start --import-realm
-
