@@ -62,10 +62,10 @@ class HiveMqttClient(private val datafill: HiveMqttDatafill) {
             val causeObj: Any? = runCatching { ctx.cause }.getOrNull()
             val cause: Throwable? = causeObj as? Throwable
 
-            // IMPORTANT: allow new connect attempts after any disconnect
+            // Allow new connect attempts after any disconnect
             inFlightConnect.set(null)
 
-            // "Client sent DISCONNECT" is usually normal shutdown; you can lower this later if you want
+            // "Client sent DISCONNECT" is usually normal shutdown; keep WARN for now (you can lower later)
             log.warn(
                 "MQTT disconnected [clientId={}, host={}, port={}]: {}",
                 datafill.clientId,
@@ -126,7 +126,7 @@ class HiveMqttClient(private val datafill: HiveMqttDatafill) {
                 // Treat as success; complete gate and clear
                 gate.complete(null)
                 inFlightConnect.compareAndSet(gate, null)
-                Mono.empty()
+                Mono.fromFuture(gate)
             } else {
                 gate.completeExceptionally(e)
                 inFlightConnect.compareAndSet(gate, null)
@@ -147,6 +147,9 @@ class HiveMqttClient(private val datafill: HiveMqttDatafill) {
     }
 
     fun disconnect() {
+        // Clear any in-flight marker on explicit disconnect as well.
+        inFlightConnect.set(null)
+
         client.disconnect().whenComplete { _, t ->
             if (t != null) {
                 log.warn(
@@ -267,5 +270,4 @@ class HiveMqttClient(private val datafill: HiveMqttDatafill) {
             log.error("MQTT publish failed [topic={}]: {}", topic, t.message, t)
         }
     }
-
 }

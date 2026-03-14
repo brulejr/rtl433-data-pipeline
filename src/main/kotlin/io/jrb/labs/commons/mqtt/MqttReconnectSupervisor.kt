@@ -24,6 +24,7 @@
 
 package io.jrb.labs.commons.mqtt
 
+import com.hivemq.client.mqtt.exceptions.MqttClientStateException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator
@@ -85,13 +86,48 @@ class MqttReconnectSupervisor(
         return Mono.defer {
             attempt += 1
             notifier.onReconnectAttempt(connectionName, attempt, null)
-            connectCall().timeout(connectTimeout)
+
+            connectCall()
+                .timeout(connectTimeout)
+                // 🔑 KEY FIX:
+                // If the client says "already connected or connecting", treat it as success.
+                .onErrorResume { e ->
+                    val root = unwrap(e)
+                    if (isAlreadyConnectedOrConnecting(root)) {
+                        log.debug(
+                            "MQTT[{}] connect attempt {} reported already connected/connecting; treating as success.",
+                            connectionName, attempt
+                        )
+                        Mono.empty()
+                    } else {
+                        Mono.error(e)
+                    }
+                }
         }
             .doOnSuccess { notifier.onReconnectSuccess(connectionName) }
-            .doOnError { e -> log.warn("MQTT[{}] connect attempt {} failed: {}", connectionName, attempt, e.toString()) }
+            .doOnError { e ->
+                // Don't warn for "already connected/connecting" because we treat it as success above.
+                log.warn("MQTT[{}] connect attempt {} failed: {}", connectionName, attempt, e.toString())
+            }
             .transformDeferred(RetryOperator.of(retry))
             .transformDeferred(CircuitBreakerOperator.of(breaker))
             .doOnError { e -> notifier.onReconnectFailed(connectionName, attempt, e) }
     }
 
+    private fun isAlreadyConnectedOrConnecting(e: Throwable): Boolean {
+        return e is MqttClientStateException &&
+                (
+                        e.message?.contains("already connected", ignoreCase = true) == true ||
+                                e.message?.contains("already connected or connecting", ignoreCase = true) == true ||
+                                e.message?.contains("connecting", ignoreCase = true) == true
+                        )
+    }
+
+    private fun unwrap(e: Throwable): Throwable {
+        var cur: Throwable = e
+        while (cur.cause != null && cur !== cur.cause) {
+            cur = cur.cause!!
+        }
+        return cur
+    }
 }

@@ -1,27 +1,3 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2025 Jon Brule <brulejr@gmail.com>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package io.jrb.labs.rtl433dp.features.ingestion.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -32,10 +8,16 @@ import io.jrb.labs.rtl433dp.events.PipelineEvent
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.events.RawMessageSource
 import io.jrb.labs.rtl433dp.features.ingestion.data.Source
+import io.jrb.labs.rtl433dp.features.ingestion.data.SourceType
 import io.jrb.labs.rtl433dp.types.Rtl433Data
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import reactor.core.Disposable
+import java.util.concurrent.atomic.AtomicReference
 
 class IngestionService(
     private val sources: List<Source>,
@@ -51,25 +33,37 @@ class IngestionService(
 
     private val log = LoggerFactory.getLogger(IngestionService::class.java)
 
-    private val _subscriptions: MutableMap<String, Disposable?> = mutableMapOf()
+    private val subscriptions: MutableMap<String, Disposable?> = mutableMapOf()
 
     private val receivedCounter = featureMetrics.eventCounter("received")
     private val errorCounter = featureMetrics.errorCounter("ingestion")
 
-    override fun onStart() {
-        sources.forEach { source ->
-            log.info("connecting to source: {}", source.name)
+    private val scopeRef = AtomicReference<CoroutineScope?>(null)
 
-            // ensure the source connection is established (useful for tests and real sources)
-            try {
-                source.connect()
-            } catch (e: Exception) {
-                log.warn("Failed to connect source {}", source.name, e)
+    private fun newScope(): CoroutineScope =
+        CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override fun onStart() {
+        scopeRef.getAndSet(newScope())?.cancel()
+        val scope = scopeRef.get()!!
+
+        sources.forEach { source ->
+            log.info("starting source subscription: {}", source.name)
+
+            // ✅ Compatibility + avoids MQTT double-connect:
+            // - For MQTT sources, connect/reconnect happens inside subscribe() (HiveMqttSource).
+            // - For non-MQTT sources, we keep the historical eager connect behavior.
+            if (source.type != SourceType.MQTT) {
+                try {
+                    source.connect()
+                } catch (e: Exception) {
+                    log.warn("Failed to connect source {}", source.name, e)
+                }
             }
 
-            _subscriptions[source.name]?.dispose() // safety if restarted
-            _subscriptions[source.name] = source.subscribe(source.topic) { message ->
-                runBlocking {
+            subscriptions[source.name]?.dispose()
+            subscriptions[source.name] = source.subscribe(source.topic) { message ->
+                scope.launch {
                     featureMetrics.processingTimer(source.type.toString()) {
                         try {
                             val rtl433Data = objectMapper.readValue(message, Rtl433Data::class.java)
@@ -96,12 +90,22 @@ class IngestionService(
     }
 
     override fun onStop() {
-        sources.forEach { source ->
-            log.info("disconnecting from source: {}", source.name)
+        // Cancel first so we don't schedule more work while shutting down
+        scopeRef.getAndSet(null)?.cancel()
 
-            _subscriptions.remove(source.name)?.dispose()
-            source.disconnect()
+        // Dispose subscriptions
+        sources.forEach { source ->
+            subscriptions.remove(source.name)?.dispose()
+        }
+
+        // Disconnect sources
+        sources.forEach { source ->
+            log.info("stopping source subscription: {}", source.name)
+            try {
+                source.disconnect()
+            } catch (e: Exception) {
+                log.warn("Failed to disconnect source {}", source.name, e)
+            }
         }
     }
-
 }
