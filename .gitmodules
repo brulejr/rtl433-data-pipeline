@@ -1,0 +1,3 @@
+[submodule "modules/ksb-commons"]
+	path = modules/ksb-commons
+	url = https://github.com/brulejr/ksb-commons.git
