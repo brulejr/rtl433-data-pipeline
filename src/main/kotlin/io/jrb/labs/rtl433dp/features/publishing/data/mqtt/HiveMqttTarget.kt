@@ -40,7 +40,7 @@ class HiveMqttTarget(
         get() = "MQTT"
 
     override fun connect() {
-        _mqttClient.connect()
+        _mqttClient.connectAsync()
     }
 
     override fun disconnect() {

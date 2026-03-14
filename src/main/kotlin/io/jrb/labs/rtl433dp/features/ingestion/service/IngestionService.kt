@@ -59,32 +59,40 @@ class IngestionService(
     override fun onStart() {
         sources.forEach { source ->
             log.info("connecting to source: {}", source.name)
-            source.connect()
-            _subscriptions[source.name] = source.subscribe(source.topic) { message -> runBlocking {
-                featureMetrics.processingTimer(source.type.toString()) {
-                    try {
-                        val rtl433Data = objectMapper.readValue(message, Rtl433Data::class.java)
-                        log.debug("Data -> model = {}, id = {}, rtl433Data='{}'", rtl433Data.model, rtl433Data.id, rtl433Data)
-                        eventBus.send(
-                            PipelineEvent.Rtl433DataReceived(
-                                source = RawMessageSource.valueOf(source.name),
-                                data = rtl433Data
-                            ))
-                    } catch (e: Exception) {
-                        errorCounter.increment()
-                        log.error("Error while processing message for ingestion {}", message, e)
-                    } finally {
-                        receivedCounter.increment()
+
+            _subscriptions[source.name]?.dispose() // safety if restarted
+            _subscriptions[source.name] = source.subscribe(source.topic) { message ->
+                runBlocking {
+                    featureMetrics.processingTimer(source.type.toString()) {
+                        try {
+                            val rtl433Data = objectMapper.readValue(message, Rtl433Data::class.java)
+                            log.debug(
+                                "Data -> model = {}, id = {}, rtl433Data='{}'",
+                                rtl433Data.model, rtl433Data.id, rtl433Data
+                            )
+                            eventBus.send(
+                                PipelineEvent.Rtl433DataReceived(
+                                    source = RawMessageSource.valueOf(source.name),
+                                    data = rtl433Data
+                                )
+                            )
+                        } catch (e: Exception) {
+                            errorCounter.increment()
+                            log.error("Error while processing message for ingestion {}", message, e)
+                        } finally {
+                            receivedCounter.increment()
+                        }
                     }
                 }
-            }}
+            }
         }
     }
 
     override fun onStop() {
         sources.forEach { source ->
             log.info("disconnecting from source: {}", source.name)
-            _subscriptions.remove(source.name)
+
+            _subscriptions.remove(source.name)?.dispose()
             source.disconnect()
         }
     }

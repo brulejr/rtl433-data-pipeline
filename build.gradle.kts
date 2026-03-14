@@ -67,7 +67,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.security:spring-security-oauth2-jose")
 
-    implementation("io.github.reactivecircus.cache4k:cache4k:0.14.0")
+    implementation(libs.cache4k)
+
+    implementation(libs.resilience4jCircuitBreaker)
+    implementation(libs.resilience4jReactor)
+    implementation(libs.resilience4jRetry)
 
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
