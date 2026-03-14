@@ -60,6 +60,13 @@ class IngestionService(
         sources.forEach { source ->
             log.info("connecting to source: {}", source.name)
 
+            // ensure the source connection is established (useful for tests and real sources)
+            try {
+                source.connect()
+            } catch (e: Exception) {
+                log.warn("Failed to connect source {}", source.name, e)
+            }
+
             _subscriptions[source.name]?.dispose() // safety if restarted
             _subscriptions[source.name] = source.subscribe(source.topic) { message ->
                 runBlocking {
