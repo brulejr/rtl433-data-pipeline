@@ -27,6 +27,8 @@ package io.jrb.labs.rtl433dp.features.publishing
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.commons.metrics.FeatureMetricsFactory
+import io.jrb.labs.commons.mqtt.MqttReconnectSupervisor
+import io.jrb.labs.commons.mqtt.NoopMqttReconnectNotifier
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_PUBLISHING
 import io.jrb.labs.rtl433dp.features.FeatureDescriptors.PUBLISHING
@@ -73,7 +75,12 @@ class PublishingConfiguration {
 
     @Bean
     fun targets(datafill: PublishingDatafill): List<Target> {
-        return datafill.mqtt.map { target -> HiveMqttTarget(target) }
+        return datafill.mqtt.map { target -> HiveMqttTarget(
+            datafill = target,
+            reconnectSupervisor = MqttReconnectSupervisor(
+                notifier = NoopMqttReconnectNotifier()
+            )
+        ) }
     }
 
     @Bean

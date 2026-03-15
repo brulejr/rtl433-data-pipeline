@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val ksbCommonsVersion: String by project
+val ksbCommonsVersion: String? by project
 val projectVersion: String by project
 
 plugins {
@@ -37,27 +37,37 @@ java {
     }
 }
 
+val localCommonsDir = rootProject.file("modules/ksb-commons")
+val useLocalCommons = localCommonsDir.exists()
+
 repositories {
     mavenCentral()
 
-    maven {
-        url = uri("https://maven.pkg.github.com/brulejr/ksb-commons")
-        credentials {
-            username = findProperty("gpr.user") as String?
-                ?: System.getenv("GITHUB_PACKAGES_USER")
-                        ?: System.getenv("GITHUB_ACTOR")
-                        ?: "brulejr"
-            password = findProperty("gpr.key") as String?
-                    // Prefer a dedicated packages token
-                ?: System.getenv("GITHUB_PACKAGES_TOKEN")
-                        // Fall back to the default GitHub token if explicitly allowed
-                        ?: System.getenv("GITHUB_TOKEN")
+    if (!useLocalCommons) {
+        maven {
+            url = uri("https://maven.pkg.github.com/brulejr/ksb-commons")
+            credentials {
+                username = findProperty("gpr.user") as String?
+                    ?: System.getenv("GITHUB_PACKAGES_USER")
+                            ?: System.getenv("GITHUB_ACTOR")
+                            ?: "brulejr"
+                password = findProperty("gpr.key") as String?
+                    ?: System.getenv("GITHUB_PACKAGES_TOKEN")
+                            ?: System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }
 
 dependencies {
-    implementation(platform("io.jrb.labs:ksb-dependency-bom:$ksbCommonsVersion"))
+    if (useLocalCommons) {
+        implementation(platform("io.jrb.labs:ksb-dependency-bom"))
+    } else {
+        require(!ksbCommonsVersion.isNullOrBlank()) {
+            "ksbCommonsVersion must be set when modules/ksb-commons is not present"
+        }
+        implementation(platform("io.jrb.labs:ksb-dependency-bom:$ksbCommonsVersion"))
+    }
 
     implementation("io.jrb.labs:ksb-spring-boot-starter-reactive")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
@@ -67,7 +77,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.security:spring-security-oauth2-jose")
 
-    implementation("io.github.reactivecircus.cache4k:cache4k:0.14.0")
+    implementation(libs.cache4k)
+
+    implementation(libs.resilience4jCircuitBreaker)
+    implementation(libs.resilience4jReactor)
+    implementation(libs.resilience4jRetry)
 
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
@@ -83,7 +97,7 @@ kotlin {
     }
 }
 
-tasks.withType<org.gradle.api.tasks.testing.Test> {
+tasks.withType<Test> {
     useJUnitPlatform()
 }
 
@@ -107,7 +121,7 @@ jib {
         // Explicit auth from environment
         auth {
             username = System.getenv("GHCR_USERNAME")
-                ?: System.getenv("GITHUB_ACTOR")  // fallback
+                ?: System.getenv("GITHUB_ACTOR")
             password = System.getenv("GHCR_TOKEN")
         }
     }

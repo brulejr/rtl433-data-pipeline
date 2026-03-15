@@ -1,0 +1,9 @@
+[versions]
+cache4k = "0.14.0"
+resilience4j = "2.3.0"
+
+[libraries]
+cache4k = { module = "io.github.reactivecircus.cache4k:cache4k", version.ref = "cache4k" }
+resilience4jCircuitBreaker = { module = "io.github.resilience4j:resilience4j-circuitbreaker", version.ref = "resilience4j" }
+resilience4jReactor = { module = "io.github.resilience4j:resilience4j-reactor", version.ref = "resilience4j" }
+resilience4jRetry = { module = "io.github.resilience4j:resilience4j-retry", version.ref = "resilience4j" }

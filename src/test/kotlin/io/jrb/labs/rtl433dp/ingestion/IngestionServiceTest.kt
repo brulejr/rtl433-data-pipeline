@@ -49,7 +49,11 @@ import reactor.core.Disposable
 
 class IngestionServiceTest {
 
-    // Simple in-test Source implementation (no mocking)
+    /**
+     * Simple in-test Source implementation:
+     * - For MQTT sources, the "connect" is now expected to happen inside subscribe()
+     *   (matching HiveMqttSource behavior).
+     */
     private class TestSource(
         override val name: String,
         override val topic: String,
@@ -70,6 +74,14 @@ class IngestionServiceTest {
         override fun subscribe(topic: String, handler: (String) -> Unit): Disposable {
             subscribed = true
             this.handler = handler
+
+            // ✅ IMPORTANT CHANGE FOR NEW CONTRACT:
+            // MQTT sources are responsible for ensuring connection inside subscribe().
+            // This matches the refactor (IngestionService no longer calls connect() for MQTT).
+            if (type == SourceType.MQTT) {
+                connect()
+            }
+
             return object : Disposable {
                 override fun dispose() {}
                 override fun isDisposed(): Boolean = false
@@ -133,18 +145,20 @@ class IngestionServiceTest {
             assertThat(source.connected).isTrue()
             assertThat(source.subscribed).isTrue()
 
-            // Emit a JSON payload that the default ObjectMapper can map (empty object often maps to a data class with optional fields).
-            // If Rtl433Data requires fields, adapt the JSON accordingly in the test.
-            source.emit("""
+            // Emit a JSON payload that the default ObjectMapper can map.
+            source.emit(
+                """
                 {
                     "model": "test-model",
                     "id": "test-id"
                 }
-            """.trimIndent())
+                """.trimIndent()
+            )
 
             // Wait for pipeline event
             val event = withTimeout(1_000) { pipelineEventDeferred.await() }
             assertThat(event).isInstanceOf(PipelineEvent.Rtl433DataReceived::class.java)
+
             val received = event as PipelineEvent.Rtl433DataReceived
             assertThat(received.source).isEqualTo(RawMessageSource.valueOf("RTL433"))
             assertThat(received.data).isNotNull()
@@ -178,6 +192,4 @@ class IngestionServiceTest {
             assertThat(source.connected).isFalse()
         }
     }
-
 }
-

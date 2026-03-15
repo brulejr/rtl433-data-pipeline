@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.SystemEventBus
 import io.jrb.labs.commons.metrics.FeatureMetrics
 import io.jrb.labs.commons.metrics.FeatureMetricsFactory
+import io.jrb.labs.commons.mqtt.MqttReconnectSupervisor
+import io.jrb.labs.commons.mqtt.NoopMqttReconnectNotifier
 import io.jrb.labs.rtl433dp.events.PipelineEventBus
 import io.jrb.labs.rtl433dp.features.FeatureDescriptors.CONFIG_PREFIX_INGESTION
 import io.jrb.labs.rtl433dp.features.FeatureDescriptors.INGESTION
@@ -61,7 +63,12 @@ class IngestionConfiguration {
 
     @Bean
     fun sources(datafill: IngestionDatafill): List<Source> {
-        return datafill.mqtt.map { source -> HiveMqttSource(source) }
+        return datafill.mqtt.map { source -> HiveMqttSource(
+            datafill = source,
+            reconnectSupervisor = MqttReconnectSupervisor(
+                notifier = NoopMqttReconnectNotifier()
+            )
+        ) }
     }
 
     @Bean
